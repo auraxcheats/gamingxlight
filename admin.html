@@ -1,119 +1,170 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Admin Panel | Gaming X Light</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#0b0b0f;color:#fff;padding:20px}
+body{margin:0;font-family:Arial;background:#0b0b0f;color:#fff;padding:20px}
 .container{max-width:1200px;margin:auto;background:#141414;padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,.1)}
 h2{text-align:center;margin-bottom:20px;color:#a855f7}
-table{width:100%;border-collapse:collapse;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px}
 th,td{border:1px solid rgba(255,255,255,.15);padding:8px;text-align:center}
 th{background:#1f1f1f}
 button{padding:6px 10px;border:none;border-radius:6px;font-weight:700;cursor:pointer}
 .deleteBtn{background:#ff4d4d;color:#000}
-.editBtn{background:#facc15;color:#000}
-.addBtn{background:#00ffcc;color:#000;margin-bottom:10px}
+.editBtn{background:#facc15;color:#000;margin-right:5px}
 .exportBtn{background:#a855f7;color:#000;margin-top:15px}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-a{color:#a855f7;text-decoration:none;font-weight:700;margin-left:10px}
-input,select{background:#0f0f0f;color:#fff;border:none;border-radius:6px;padding:6px;width:100%;margin:2px 0}
+input,textarea{width:100%;padding:8px;margin-bottom:8px;border-radius:6px;border:none;background:#0f0f0f;color:#fff}
+h3{margin-top:25px;color:#a855f7}
 </style>
 </head>
-<body><div class="container">
-  <div class="topbar">
-    <h2><img id="logo" src="" alt="Logo" style="height:30px;vertical-align:middle;margin-right:8px">Gaming X Light Admin</h2>
-    <div>
-      <a href="index.html">⬅ Home</a>
-      <a href="#" onclick="logout()">Logout</a>
-    </div>
-  </div>  <h3>🛠 Social Links & Logo</h3>
-  <div style="margin-bottom:20px">
-    <label>Logo URL:</label><input type="text" id="logoInput">
-    <label>Telegram:</label><input type="text" id="telegramInput">
-    <label>YouTube:</label><input type="text" id="youtubeInput">
-    <label>Proof:</label><input type="text" id="proofInput">
-    <label>Admin Support:</label><input type="text" id="adminSupportInput">
-    <button class="addBtn" onclick="saveLinks()">Save Social Links & Logo</button>
-  </div>  <h3>📦 Products</h3>
-  <button class="addBtn" onclick="addProduct()">+ Add New Product</button>
-  <table id="productsTable"></table>  <h3 style="margin-top:30px">📦 Orders</h3>
-  <table id="ordersTable"></table>
-  <button class="exportBtn" id="exportOrdersBtn">⬇ Export Orders CSV</button>
-</div><script>
-/* ================== ADMIN PASSWORD ==================*/
+<body>
+
+<div class="container">
+<div class="topbar">
+  <h2>🛡 Admin Dashboard</h2>
+  <div>
+    <a href="index.html">⬅ Home</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</div>
+
+<h3>🌟 Site Settings</h3>
+<label>Site Logo URL:</label>
+<input type="text" id="logoInput" placeholder="Enter logo URL">
+<label>YouTube Link:</label>
+<input type="text" id="youtubeInput" placeholder="YouTube channel link">
+<label>Proof Link:</label>
+<input type="text" id="proofInput" placeholder="Proof channel link">
+<label>Admin Support Link:</label>
+<input type="text" id="supportInput" placeholder="Telegram support link">
+<label>QR Image URL:</label>
+<input type="text" id="qrInput" placeholder="QR code image URL">
+<label>UPI ID:</label>
+<input type="text" id="upiInput" placeholder="UPI ID">
+<button onclick="saveSettings()">💾 Save Settings</button>
+
+<h3>📦 Products</h3>
+<table id="productsTable"></table>
+<button onclick="addProductPrompt()">➕ Add New Product</button>
+<button class="exportBtn" id="exportProductsBtn">⬇ Export Products CSV</button>
+
+<h3>📦 Orders</h3>
+<table id="ordersTable"></table>
+<button class="exportBtn" id="exportOrdersBtn">⬇ Export Orders CSV</button>
+
+</div>
+
+<script>
+// ====== ADMIN PASSWORD ======
 const ADMIN_PASSWORD = "gaming_x_light";
 if(!sessionStorage.getItem("isAdmin")){
-  const pass = prompt("🔐 Enter Admin Password:");
-  if(pass!==ADMIN_PASSWORD){alert("❌ Access Denied!");window.location.href="index.html"}
+  const pass = prompt("Enter Admin Password:");
+  if(pass!==ADMIN_PASSWORD){ alert("❌ Access Denied!"); window.location.href="index.html"; }
   else sessionStorage.setItem("isAdmin","true");
 }
-function logout(){sessionStorage.removeItem("isAdmin");window.location.href="index.html"}
 
-/* ================== LOAD SOCIAL LINKS & LOGO ==================*/
-let social = JSON.parse(localStorage.getItem("socialLinks")||"{}");
-const logoEl = document.getElementById("logo");
-function loadLinks(){
-  document.getElementById("logoInput").value = social.logo||"";
-  logoEl.src = social.logo||"";
-  document.getElementById("telegramInput").value = social.telegram||"";
-  document.getElementById("youtubeInput").value = social.youtube||"";
-  document.getElementById("proofInput").value = social.proof||"";
-  document.getElementById("adminSupportInput").value = social.admin||"";
-}
-function saveLinks(){
-  social = {
-    logo: document.getElementById("logoInput").value,
-    telegram: document.getElementById("telegramInput").value,
-    youtube: document.getElementById("youtubeInput").value,
-    proof: document.getElementById("proofInput").value,
-    admin: document.getElementById("adminSupportInput").value
-  };
-  localStorage.setItem("socialLinks",JSON.stringify(social));
-  alert("✅ Saved!");
-  logoEl.src = social.logo||"";
-}
-loadLinks();
+function logout(){ sessionStorage.removeItem("isAdmin"); window.location.href="index.html"; }
 
-/* ================== PRODUCTS ==================*/
+// ====== SITE SETTINGS ======
+const logoInput = document.getElementById("logoInput");
+const youtubeInput = document.getElementById("youtubeInput");
+const proofInput = document.getElementById("proofInput");
+const supportInput = document.getElementById("supportInput");
+const qrInput = document.getElementById("qrInput");
+const upiInput = document.getElementById("upiInput");
+
+let settings = JSON.parse(localStorage.getItem("siteSettings")||"{}");
+logoInput.value = settings.logo||"";
+youtubeInput.value = settings.youtube||"";
+proofInput.value = settings.proof||"";
+supportInput.value = settings.support||"";
+qrInput.value = settings.qr||"";
+upiInput.value = settings.upi||"";
+
+function saveSettings(){
+  settings.logo = logoInput.value;
+  settings.youtube = youtubeInput.value;
+  settings.proof = proofInput.value;
+  settings.support = supportInput.value;
+  settings.qr = qrInput.value;
+  settings.upi = upiInput.value;
+  localStorage.setItem("siteSettings", JSON.stringify(settings));
+  alert("✅ Settings Saved!");
+}
+
+// ====== PRODUCTS ======
 let products = JSON.parse(localStorage.getItem("products")||"[]");
 const productsTable = document.getElementById("productsTable");
+
 function renderProducts(){
-  productsTable.innerHTML = `<tr><th>#</th><th>Name</th><th>Price</th><th>Badge</th><th>Description</th><th>Validity Days</th><th>Actions</th></tr>`;
+  productsTable.innerHTML = `<tr>
+    <th>#</th><th>Name</th><th>Badge</th><th>Price</th><th>Features</th><th>Actions</th>
+  </tr>`;
+  if(products.length===0){
+    const row = productsTable.insertRow();
+    const cell = row.insertCell(); cell.colSpan=6; cell.innerText="No products"; cell.style.opacity=".6";
+    return;
+  }
   products.forEach((p,i)=>{
     const row = productsTable.insertRow();
-    row.insertCell().innerText = i+1;
-    row.insertCell().innerHTML = `<input value='${p.name}'>`;
-    row.insertCell().innerHTML = `<input value='${p.price}'>`;
-    row.insertCell().innerHTML = `<input value='${p.badge||""}'>`;
-    row.insertCell().innerHTML = `<input value='${p.description||""}'>`;
-    row.insertCell().innerHTML = `<input value='${p.days||""}'>`;
+    row.insertCell().innerText=i+1;
+    row.insertCell().innerText=p.name;
+    row.insertCell().innerText=p.badge;
+    row.insertCell().innerText=p.price;
+    row.insertCell().innerText=p.features.join(", ");
     const cell = row.insertCell();
-    const saveBtn = document.createElement("button"); saveBtn.innerText="Save"; saveBtn.className="editBtn";
-    saveBtn.onclick=()=>{
-      products[i].name = row.cells[1].children[0].value;
-      products[i].price = row.cells[2].children[0].value;
-      products[i].badge = row.cells[3].children[0].value;
-      products[i].description = row.cells[4].children[0].value;
-      products[i].days = row.cells[5].children[0].value;
-      localStorage.setItem("products",JSON.stringify(products));
-      alert("✅ Product saved!");
-      renderProducts();
-    };
-    const delBtn = document.createElement("button"); delBtn.innerText="Delete"; delBtn.className="deleteBtn";
-    delBtn.onclick=()=>{if(confirm("Delete this product?")){products.splice(i,1);saveProducts();}};
-    cell.appendChild(saveBtn); cell.appendChild(delBtn);
+    const editBtn = document.createElement("button");
+    editBtn.innerText="Edit"; editBtn.className="editBtn";
+    editBtn.onclick=()=>editProduct(i);
+    const delBtn = document.createElement("button");
+    delBtn.innerText="Delete"; delBtn.className="deleteBtn";
+    delBtn.onclick=()=>{ if(confirm("Delete product?")){ products.splice(i,1); saveProducts(); } };
+    cell.appendChild(editBtn); cell.appendChild(delBtn);
   });
 }
-function saveProducts(){localStorage.setItem("products",JSON.stringify(products)); renderProducts();}
-function addProduct(){products.push({name:"New Product",price:"0",badge:"",description:"",days:""}); saveProducts();}
-renderProducts();
 
-/* ================== ORDERS ==================*/
+function saveProducts(){
+  localStorage.setItem("products", JSON.stringify(products));
+  renderProducts();
+}
+
+function addProductPrompt(){
+  const name = prompt("Product Name:");
+  if(!name) return;
+  const badge = prompt("Badge (optional):","HOT");
+  const price = prompt("Price (₹):");
+  if(!price) return;
+  const features = prompt("Comma separated features:","Feature1, Feature2").split(",");
+  products.push({name,badge,price,features});
+  saveProducts();
+}
+
+function editProduct(i){
+  const p = products[i];
+  const name = prompt("Product Name:",p.name); if(!name) return;
+  const badge = prompt("Badge:",p.badge);
+  const price = prompt("Price (₹):",p.price); if(!price) return;
+  const features = prompt("Comma separated features:",p.features.join(",")).split(",");
+  products[i]={name,badge,price,features};
+  saveProducts();
+}
+
+// ====== ORDERS ======
 let orders = JSON.parse(localStorage.getItem("orders")||"[]");
 const ordersTable = document.getElementById("ordersTable");
+
 function renderOrders(){
-  ordersTable.innerHTML = `<tr><th>#</th><th>Username</th><th>Email</th><th>Product</th><th>Price</th><th>UTR</th><th>Guild UID</th><th>Region</th><th>Telegram</th><th>WhatsApp</th><th>Action</th></tr>`;
+  ordersTable.innerHTML = `<tr>
+    <th>#</th><th>Username</th><th>Email</th><th>Product</th><th>Price</th><th>UTR</th><th>UID</th><th>Region</th><th>Telegram</th><th>WhatsApp</th>
+  </tr>`;
+  if(orders.length===0){
+    const row = ordersTable.insertRow();
+    const cell = row.insertCell(); cell.colSpan=10; cell.innerText="No orders"; cell.style.opacity=".6";
+    return;
+  }
   orders.forEach((o,i)=>{
     const row = ordersTable.insertRow();
     row.insertCell().innerText=i+1;
@@ -126,21 +177,25 @@ function renderOrders(){
     row.insertCell().innerText=o.region;
     row.insertCell().innerText=o.telegram;
     row.insertCell().innerText=o.whatsapp;
-    const cell = row.insertCell();
-    const delBtn = document.createElement("button"); delBtn.innerText="Delete"; delBtn.className="deleteBtn";
-    delBtn.onclick=()=>{if(confirm("Delete this order?")){orders.splice(i,1);saveOrders();}};
-    cell.appendChild(delBtn);
   });
 }
-function saveOrders(){localStorage.setItem("orders",JSON.stringify(orders)); renderOrders();}
-renderOrders();
 
-/* ================== EXPORT ORDERS CSV ==================*/
-document.getElementById("exportOrdersBtn").addEventListener("click",()=>{
-  let csv = "Username,Email,Product,Price,UTR,Guild UID,Region,Telegram,WhatsApp\n";
-  orders.forEach(o=>{csv+=`${o.username},${o.email},${o.product},${o.price},${o.utr},${o.uid},${o.region},${o.telegram},${o.whatsapp}\n`;});
-  const blob = new Blob([csv],{type:"text/csv"});
-  const a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="orders.csv"; a.click();
+// ====== EXPORT ======
+document.getElementById("exportProductsBtn").addEventListener("click",()=>{
+  let csv="Name,Badge,Price,Features\n";
+  products.forEach(p=>{ csv+=`${p.name},${p.badge},${p.price},"${p.features.join(";")}"\n`; });
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download="products.csv"; a.click();
 });
-</script></body>
+document.getElementById("exportOrdersBtn").addEventListener("click",()=>{
+  let csv="Username,Email,Product,Price,UTR,UID,Region,Telegram,WhatsApp\n";
+  orders.forEach(o=>{ csv+=`${o.username},${o.email},${o.product},${o.price},${o.utr},${o.uid},${o.region},${o.telegram},${o.whatsapp}\n`; });
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download="orders.csv"; a.click();
+});
+
+renderProducts(); renderOrders();
+</script>
+
+</body>
 </html>
