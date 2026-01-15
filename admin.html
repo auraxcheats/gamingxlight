@@ -4,90 +4,120 @@
 <meta charset="UTF-8">
 <title>Admin Panel | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
 body{margin:0;font-family:Arial;background:#0b0b0f;color:#fff;padding:20px}
 .container{max-width:1200px;margin:auto;background:#141414;padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,.1)}
-h2{text-align:center;margin-bottom:20px;color:#a855f7}
+h2{text-align:center;color:#a855f7;margin-bottom:20px}
 table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px}
 th,td{border:1px solid rgba(255,255,255,.15);padding:8px;text-align:center}
 th{background:#1f1f1f}
 button{padding:6px 10px;border:none;border-radius:6px;font-weight:700;cursor:pointer}
 .deleteBtn{background:#ff4d4d;color:#000}
-.editBtn{background:#facc15;color:#000;margin-left:5px}
+.editBtn{background:#facc15;color:#000;margin-right:5px}
 .exportBtn{background:#a855f7;color:#000;margin-top:15px}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
 a{color:#a855f7;text-decoration:none;font-weight:700;margin-left:10px}
-input,select{padding:6px;border-radius:6px;border:none;margin:4px 2px}
 </style>
 </head>
 <body>
+
 <div class="container">
 <div class="topbar">
-<h2>🛡 Admin Panel</h2>
-<div><a href="index.html">⬅ Home</a> | <a href="#" onclick="logout()">Logout</a></div>
+  <h2>🛡 Admin Dashboard</h2>
+  <div>
+    <a href="index.html">⬅ Home</a>
+  </div>
 </div>
 
 <h3>📦 Products</h3>
 <table id="productsTable"></table>
 <button class="exportBtn" id="exportProductsBtn">⬇ Export Products CSV</button>
-<br>
-<h3>👥 Orders</h3>
+
+<h3>📦 Orders</h3>
 <table id="ordersTable"></table>
 <button class="exportBtn" id="exportOrdersBtn">⬇ Export Orders CSV</button>
+
+<button onclick="addProduct()">➕ Add New Product</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL="https://dsrevynaanjmepnufzqi.supabase.co";
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzcmV2eW5hYW5qbWVwbnVmenFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODc1NTQsImV4cCI6MjA4NDA2MzU1NH0.jSw2LRo7bTjA2uXR89Zn6AJMBARCIz-Vu722Jm9NSmM";
-const supabase=Supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const supabaseUrl = "https://dsrevynaanjmepnufzqi.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // anon key
+const supabase = supabase.createClient(supabaseUrl,supabaseKey);
 
-const ADMIN_PASSWORD="gaming_x_light";
-let isAdmin=sessionStorage.getItem("isAdmin");
-if(!isAdmin){ const pass=prompt("Enter Admin Password"); if(pass!==ADMIN_PASSWORD){alert("❌ Access Denied!");window.location.href="index.html"}else{sessionStorage.setItem("isAdmin","true")}}
-function logout(){sessionStorage.removeItem("isAdmin");window.location.href="index.html"}
+let isAdmin = sessionStorage.getItem("isAdmin");
+if(!isAdmin){
+  const pass = prompt("Enter Admin Password:");
+  if(pass!=="gaming_x_light"){alert("Access Denied!"); location.href="index.html";}
+  sessionStorage.setItem("isAdmin","true");
+}
 
-// Load Products
 async function loadProducts(){
-  const {data,error}=await supabase.from('products').select('*').order('id',{ascending:true});
-  const table=document.getElementById("productsTable");
-  table.innerHTML="<tr><th>#</th><th>Name</th><th>Price</th><th>Badge</th><th>Features</th><th>Action</th></tr>";
-  if(error){console.error(error);return;}
-  data.forEach((p,i)=>{
-    const row=table.insertRow();
-    row.insertCell(0).innerText=i+1;
-    row.insertCell(1).innerText=p.name;
-    row.insertCell(2).innerText=p.price;
-    row.insertCell(3).innerText=p.badge;
-    row.insertCell(4).innerText=p.features;
-    const cell=row.insertCell(5);
+  const { data: products } = await supabase.from("products").select("*");
+  const table = document.getElementById("productsTable");
+  table.innerHTML = `<tr><th>#</th><th>Name</th><th>Price</th><th>Badge</th><th>Features</th><th>Actions</th></tr>`;
+  products.forEach((p,i)=>{
+    const row = table.insertRow();
+    row.insertCell().innerText=i+1;
+    row.insertCell().innerText=p.name;
+    row.insertCell().innerText=p.price;
+    row.insertCell().innerText=p.badge;
+    row.insertCell().innerText=JSON.parse(p.features).join(",");
+    const cell=row.insertCell();
+    const editBtn=document.createElement("button");
+    editBtn.className="editBtn"; editBtn.innerText="Edit";
+    editBtn.onclick=()=>editProduct(p);
     const delBtn=document.createElement("button");
-    delBtn.innerText="Delete"; delBtn.className="deleteBtn";
-    delBtn.onclick=async()=>{
-      if(confirm("Delete this product?")){await supabase.from('products').delete().eq('id',p.id);loadProducts();}
-    }
-    cell.appendChild(delBtn);
+    delBtn.className="deleteBtn"; delBtn.innerText="Delete";
+    delBtn.onclick=()=>deleteProduct(p.id);
+    cell.appendChild(editBtn); cell.appendChild(delBtn);
   });
 }
-loadProducts();
 
-// Load Orders from localStorage
-let orders=JSON.parse(localStorage.getItem("orders")||"[]");
-const ordersTable=document.getElementById("ordersTable");
-function renderOrders(){
-  ordersTable.innerHTML="<tr><th>#</th><th>Product</th><th>Price</th><th>UTR</th><th>Guild UID</th><th>Region</th><th>Telegram</th><th>WhatsApp</th></tr>";
+async function loadOrders(){
+  const { data: orders } = await supabase.from("orders").select("*");
+  const table = document.getElementById("ordersTable");
+  table.innerHTML = `<tr><th>#</th><th>Username</th><th>Email</th><th>Product</th><th>Price</th><th>UTR</th><th>UID</th><th>Region</th><th>Telegram</th><th>WhatsApp</th></tr>`;
   orders.forEach((o,i)=>{
-    const row=ordersTable.insertRow();
-    row.insertCell(0).innerText=i+1;
-    row.insertCell(1).innerText=o.product;
-    row.insertCell(2).innerText=o.price;
-    row.insertCell(3).innerText=o.utr;
-    row.insertCell(4).innerText=o.uid;
-    row.insertCell(5).innerText=o.region;
-    row.insertCell(6).innerText=o.telegram;
-    row.insertCell(7).innerText=o.whatsapp;
+    const row = table.insertRow();
+    row.insertCell().innerText=i+1;
+    row.insertCell().innerText=o.username||"Guest";
+    row.insertCell().innerText=o.email||"N/A";
+    row.insertCell().innerText=o.product;
+    row.insertCell().innerText=o.price;
+    row.insertCell().innerText=o.utr;
+    row.insertCell().innerText=o.uid;
+    row.insertCell().innerText=o.region;
+    row.insertCell().innerText=o.telegram;
+    row.insertCell().innerText=o.whatsapp;
   });
 }
-renderOrders();
+
+async function addProduct(){
+  const name=prompt("Product name:");
+  const price=prompt("Price:");
+  const badge=prompt("Badge:");
+  const features=prompt("Features as comma separated:");
+  await supabase.from("products").insert([{name,price,badge,features:JSON.stringify(features.split(","))}]);
+  loadProducts();
+}
+
+async function editProduct(p){
+  const name=prompt("New name:",p.name);
+  const price=prompt("New price:",p.price);
+  const badge=prompt("New badge:",p.badge);
+  const features=prompt("New features comma separated:",JSON.parse(p.features).join(","));
+  await supabase.from("products").update({name,price,badge,features:JSON.stringify(features.split(","))}).eq("id",p.id);
+  loadProducts();
+}
+
+async function deleteProduct(id){
+  if(confirm("Delete product?")){await supabase.from("products").delete().eq("id",id); loadProducts();}
+}
+
+loadProducts(); loadOrders();
 </script>
-</body
+
+</body>
+</html>
