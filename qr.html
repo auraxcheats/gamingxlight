@@ -10,9 +10,8 @@
 body{
   margin:0;
   min-height:100vh;
-  background:
-    radial-gradient(circle at top, #2a0845, #0b0b0f 60%);
-  font-family:Arial,Helvetica,sans-serif;
+  background: radial-gradient(circle at top, #2a0845, #0b0b0f 60%);
+  font-family: Arial, Helvetica, sans-serif;
   color:#fff;
   display:flex;
   align-items:center;
@@ -23,14 +22,14 @@ body{
 .card{
   width:100%;
   max-width:420px;
-  background:rgba(20,20,20,.75);
-  backdrop-filter:blur(14px);
+  background: rgba(20,20,20,.75);
+  backdrop-filter: blur(14px);
   border:1px solid rgba(255,255,255,.08);
   border-radius:20px;
   padding:28px;
-  box-shadow:
-    0 0 30px rgba(168,85,247,.45),
-    inset 0 0 20px rgba(255,255,255,.03);
+  box-shadow: 0 0 30px rgba(168,85,247,.45),
+              inset 0 0 20px rgba(255,255,255,.03);
+  text-align:center;
 }
 
 .brand{
@@ -49,23 +48,35 @@ h2{margin:4px 0 2px;font-size:22px}
 }
 
 .qr-box{
+  position: relative;
+  display:inline-block;
   background:#0f0f15;
   border-radius:16px;
   padding:18px;
   margin:18px 0;
-  box-shadow:0 0 20px rgba(0,0,0,.6)
+  box-shadow: 0 0 20px rgba(0,0,0,.6);
+  animation: glow 2s infinite alternate;
 }
+
 .qr-box img{
-  width:230px;
+  width:220px;
   border-radius:14px;
+  display:block;
+  margin:0 auto;
+}
+
+@keyframes glow {
+  0%{ box-shadow: 0 0 20px rgba(168,85,247,.5); }
+  50%{ box-shadow: 0 0 30px rgba(168,85,247,.9); }
+  100%{ box-shadow: 0 0 25px rgba(168,85,247,.7); }
 }
 
 .upi{
-  margin-top:10px;
-  font-size:14px;
-  opacity:.85
+  margin-top:12px;
+  font-size:16px;
+  font-weight:700;
+  color:#c084fc;
 }
-.upi b{color:#c084fc}
 
 .btn{
   width:100%;
@@ -106,6 +117,7 @@ h2{margin:4px 0 2px;font-size:22px}
   padding:22px;
   border-radius:18px;
   box-shadow:0 0 35px rgba(168,85,247,.7);
+  text-align:center;
 }
 .popup-card img{
   width:100%;
@@ -113,8 +125,12 @@ h2{margin:4px 0 2px;font-size:22px}
 }
 .popup-card p{
   margin:12px 0 6px;
-  font-size:13px;
-  opacity:.8
+  font-size:14px;
+  font-weight:700;
+  color:#fff;
+}
+.popup-card .btn{
+  margin-top:10px;
 }
 </style>
 </head>
@@ -128,7 +144,7 @@ h2{margin:4px 0 2px;font-size:22px}
 
   <div class="qr-box">
     <img src="qr.png" alt="Scan to Pay">
-    <div class="upi">UPI ID: <b>sahimam@ptyes</b></div>
+    <div class="upi">UPI ID: sahimam@ptyes</div>
   </div>
 
   <button class="btn" onclick="openPopup()">I HAVE PAID</button>
@@ -140,8 +156,8 @@ h2{margin:4px 0 2px;font-size:22px}
   <div class="popup-card">
     <img src="warning.png" alt="Warning">
     <p>
-      Make sure to do this settings <b>in Guild</b>.  
-      Wrong UTR or fake payment may lead to order cancellation.
+      ⚠ Make sure to do this setting <b>in Guild</b>.<br>
+      And accept bot join request in guild .
     </p>
     <button class="btn" onclick="goPay()">CONTINUE</button>
   </div>
@@ -164,8 +180,7 @@ function openPopup(){
   document.getElementById("popup").style.display="flex";
 }
 function goPay(){
-  location.href =
-    "pay.html?product="+encodeURIComponent(product)+"&price="+price;
+  location.href = "pay.html?product="+encodeURIComponent(product)+"&price="+price;
 }
 </script>
 
