@@ -2,186 +2,107 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Secure Payment | GAMING X LIGHT</title>
+<title>Scan & Pay | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  min-height:100vh;
-  background: radial-gradient(circle at top, #2a0845, #0b0b0f 60%);
-  font-family: Arial, Helvetica, sans-serif;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
+body {
+  margin:0; font-family:Arial, sans-serif; background:#0b0b0f; color:#fff; text-align:center; padding:20px;
 }
-
-.card{
-  width:100%;
-  max-width:420px;
-  background: rgba(20,20,20,.75);
-  backdrop-filter: blur(14px);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:20px;
-  padding:28px;
-  box-shadow: 0 0 30px rgba(168,85,247,.45),
-              inset 0 0 20px rgba(255,255,255,.03);
-  text-align:center;
+.box {
+  max-width:380px; margin:60px auto; padding:30px; background:#141414; border-radius:16px;
+  box-shadow:0 0 25px rgba(168,85,247,0.5); position:relative;
 }
-
-.brand{
-  font-weight:900;
-  letter-spacing:1px;
-  color:#c084fc;
-  margin-bottom:6px;
+.logo {
+  width:120px; margin-bottom:20px;
 }
+h2,h1,h3 { margin:6px 0; }
+#price { font-size:28px; font-weight:900; color:#a855f7; margin:10px 0; }
 
-h2{margin:4px 0 2px;font-size:22px}
-.price{
-  font-size:30px;
-  font-weight:900;
-  color:#00ffd5;
-  margin-bottom:14px;
-}
-
-.qr-box{
-  position: relative;
+.qr-container {
+  position:relative;
   display:inline-block;
-  background:#0f0f15;
-  border-radius:16px;
-  padding:18px;
-  margin:18px 0;
-  box-shadow: 0 0 20px rgba(0,0,0,.6);
+  padding:15px;
+  border-radius:20px;
+  box-shadow:0 0 20px #a855f7;
   animation: glow 2s infinite alternate;
 }
-
-.qr-box img{
-  width:220px;
-  border-radius:14px;
-  display:block;
-  margin:0 auto;
-}
-
 @keyframes glow {
-  0%{ box-shadow: 0 0 20px rgba(168,85,247,.5); }
-  50%{ box-shadow: 0 0 30px rgba(168,85,247,.9); }
-  100%{ box-shadow: 0 0 25px rgba(168,85,247,.7); }
+  0% { box-shadow:0 0 20px #a855f7; }
+  50% { box-shadow:0 0 35px #facc15; }
+  100% { box-shadow:0 0 20px #a855f7; }
 }
 
-.upi{
-  margin-top:12px;
-  font-size:16px;
-  font-weight:700;
-  color:#c084fc;
+button {
+  padding:14px 24px; background:#a855f7; border:none; border-radius:12px;
+  font-weight:800; cursor:pointer; margin-top:25px; transition:.3s;
 }
+button:hover { opacity:.95; }
 
-.btn{
-  width:100%;
-  padding:16px;
-  margin-top:16px;
-  background:linear-gradient(135deg,#a855f7,#7c3aed);
-  border:none;
-  border-radius:14px;
-  font-weight:900;
-  font-size:15px;
-  cursor:pointer;
-  color:#000;
-  transition:.25s;
+.popup {
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,.85); color:#fff; font-size:18px; font-weight:900;
+  display:flex; align-items:center; justify-content:center; z-index:100; text-align:center;
 }
-.btn:hover{transform:translateY(-1px);opacity:.95}
-
-.back{
-  display:block;
-  margin-top:16px;
-  font-size:13px;
-  color:#a855f7;
-  text-decoration:none
-}
-
-/* POPUP */
-.popup{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.75);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
-}
-.popup-card{
-  max-width:340px;
-  background:#141414;
-  padding:22px;
-  border-radius:18px;
-  box-shadow:0 0 35px rgba(168,85,247,.7);
-  text-align:center;
-}
-.popup-card img{
-  width:100%;
-  border-radius:14px
-}
-.popup-card p{
-  margin:12px 0 6px;
-  font-size:14px;
-  font-weight:700;
-  color:#fff;
-}
-.popup-card .btn{
-  margin-top:10px;
-}
+.popup img { max-width:300px; border-radius:16px; }
+a { color:#a855f7; text-decoration:none; display:block; margin-top:15px; }
 </style>
 </head>
 <body>
 
-<div class="card">
-  <div class="brand">GAMING X LIGHT</div>
+<div class="box">
+  <img src="logo.png" class="logo" alt="GAMING X LIGHT">
 
+  <h3 id="username">Hello, Guest</h3>
   <h2 id="pname">Loading...</h2>
-  <div class="price" id="price"></div>
+  <h1 id="price"></h1>
 
-  <div class="qr-box">
-    <img src="qr.png" alt="Scan to Pay">
-    <div class="upi">UPI ID: sahimam@ptyes</div>
+  <div class="qr-container">
+    <img src="qr.png" width="220" alt="Scan QR to Pay">
   </div>
 
-  <button class="btn" onclick="openPopup()">I HAVE PAID</button>
-  <a href="index.html" class="back">← Back to Home</a>
-</div>
+  <p><b>UPI ID:</b> sahimam@ptyes</p>
 
-<!-- WARNING POPUP -->
-<div class="popup" id="popup">
-  <div class="popup-card">
-    <img src="warning.png" alt="Warning">
-    <p>
-      ⚠ Make sure to do this setting <b>in Guild</b>.<br>
-      And accept bot join request in guild .
-    </p>
-    <button class="btn" onclick="goPay()">CONTINUE</button>
+  <button id="paidBtn">I HAVE PAID</button>
+  <a href="index.html">Back to Home</a>
+
+  <!-- POPUP IMAGE -->
+  <div class="popup" id="popupMsg">
+    <img src="warning.png" alt="Make sure to do this setting in Guild.
+And accept bot join request in guild .">
   </div>
 </div>
 
 <script>
-const params = new URLSearchParams(location.search);
+const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
-const price = params.get("price");
+const price = parseFloat(params.get("price"));
+
+const user = JSON.parse(localStorage.getItem("loggedUser"));
+if(!user){
+  alert("❌ You must login first!");
+  window.location.href = "login.html";
+}else{
+  document.getElementById("username").innerText = "Hello, " + user.username;
+}
 
 if(!product || !price){
-  document.body.innerHTML =
-    "<h2>Invalid Access</h2><a href='index.html'>Go Home</a>";
+  document.body.innerHTML = "<h2>Invalid Access</h2><a href='index.html'>Go Home</a>";
 }else{
   document.getElementById("pname").innerText = decodeURIComponent(product);
-  document.getElementById("price").innerText = "₹" + price;
+  document.getElementById("price").innerText = "₹" + price.toFixed(2);
 }
 
-function openPopup(){
-  document.getElementById("popup").style.display="flex";
-}
-function goPay(){
-  location.href = "pay.html?product="+encodeURIComponent(product)+"&price="+price;
-}
+// Exact amount check
+document.getElementById("paidBtn").addEventListener("click", () => {
+  let paidAmount = prompt(`Enter the amount you paid (₹${price.toFixed(2)}):`);
+  if(parseFloat(paidAmount) === price){
+    window.location.href = `pay.html?product=${encodeURIComponent(product)}&price=${price}`;
+  } else {
+    const popup = document.getElementById("popupMsg");
+    popup.style.display = "flex";
+    setTimeout(() => popup.style.display = "none", 4000);
+  }
+});
 </script>
 
 </body>
