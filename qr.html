@@ -24,7 +24,6 @@ body {
   background: #141414;
   border-radius: 16px;
   box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
-  position: relative;
 }
 .logo {
   width: 120px;
@@ -98,26 +97,20 @@ button:hover { opacity: 0.9; }
 <body>
 
 <div class="box">
-  <!-- Logo -->
   <img src="logo.png" class="logo" alt="Gaming X Light Logo">
 
-  <!-- Product Info -->
   <h2 id="pname">Loading...</h2>
   <h3 id="price"></h3>
 
-  <!-- QR Code -->
   <div class="qr-container">
     <div id="qr"></div>
   </div>
 
-  <!-- UPI -->
   <p class="upi" id="upiId">sahimam@ptyes</p>
 
-  <!-- Button -->
   <button id="paidBtn">I HAVE PAID</button>
 </div>
 
-<!-- Popup -->
 <div id="popup">
   <img src="warning.png" alt="Important Instructions">
   <div class="text">
@@ -143,7 +136,7 @@ if(!product || !price){
 }
 
 // GENERATE UPI QR CODE WITH AMOUNT
-const upiId = "sahimam@ptyes"; // Your UPI ID
+const upiId = "sahimam@ptyes"; 
 const upiUri = `upi://pay?pa=${upiId}&pn=Gaming X Light&am=${price}&cu=INR`;
 new QRCode(document.getElementById("qr"), {
   text: upiUri,
@@ -161,7 +154,13 @@ document.getElementById("paidBtn").addEventListener("click", () => {
 
 // CONTINUE BUTTON
 document.getElementById("continueBtn").addEventListener("click", () => {
-  window.location.href = `pay.html?product=${encodeURIComponent(product)}&price=${price}`;
+  const user = JSON.parse(localStorage.getItem("loggedUser"));
+  if(!user){
+    alert("❌ You must login first!");
+    window.location.href="login.html";
+  } else {
+    window.location.href = `pay.html?product=${encodeURIComponent(product)}&price=${price}`;
+  }
 });
 </script>
 
