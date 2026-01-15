@@ -2,17 +2,34 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GAMING X LIGHT Store</title>
+<title>GAMING X LIGHT STORE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 :root{--purple:#a855f7;--border:rgba(255,255,255,.08)}
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial;background:radial-gradient(circle at top,#1c1030,#0b0b0f 65%);color:#fff}
-.header{display:flex;align-items:center;padding:16px}
-.header img{height:50px;margin-right:12px;border-radius:8px}
-.header h1{margin:0;font-size:28px;font-weight:900;letter-spacing:1px}
-.header span{color:var(--purple)}
-.subtitle{opacity:.75;text-align:center}
+.hero{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:50px 16px 20px;
+  text-align:center;
+  flex-direction:column;
+}
+.hero-logo{
+  width:60px;
+  height:60px;
+  object-fit:contain;
+  margin-bottom:12px;
+}
+.hero h1{
+  margin:0;
+  font-size:36px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+.hero h1 span{color:var(--purple)}
+.subtitle{opacity:.75;margin-top:8px}
 .divider{width:80%;max-width:420px;height:2px;background:linear-gradient(90deg,transparent,var(--purple),transparent);margin:20px auto}
 .section-title{text-align:center;padding:30px 0}
 .wrap{max-width:720px;margin:auto;padding:16px}
@@ -29,55 +46,53 @@ footer{text-align:center;opacity:.5;font-size:12px;padding:14px}
 </head>
 <body>
 
-<!-- HEADER WITH LOGO -->
-<div class="header">
-  <img id="siteLogo" src="" alt="Logo">
-  <h1>GAMING X <span>LIGHT</span> STORE</h1>
+<div class="hero">
+  <img class="hero-logo" id="siteLogo" src="" alt="Logo">
+  <h1 id="siteName">GAMING X <span>LIGHT</span> STORE</h1>
+  <p class="subtitle" id="siteSubtitle">Premium Free Fire Tools & Bots</p>
+  <div class="divider"></div>
 </div>
-<p class="subtitle" id="siteSubtitle">Premium Free Fire Tools & Bots</p>
-<div class="divider"></div>
 
-<!-- PRODUCTS SECTION -->
 <div class="section-title">
-  <h2>GUILD GLORY BOT PLANS</h2>
+  <h2 id="productsTitle">GUILD GLORY BOT PLANS</h2>
 </div>
+
 <div class="wrap" id="products"></div>
 
-<!-- OFFICIAL LINKS -->
-<div class="links" id="officialLinks">
-  <h2>OFFICIAL LINKS</h2>
-</div>
+<div class="links" id="officialLinksContainer"></div>
 
 <footer>© 2026 GAMING X LIGHT Store</footer>
 
 <script src="product.js"></script>
 <script>
-// ===== LOAD SITE SETTINGS =====
-let settings = JSON.parse(localStorage.getItem("siteSettings")||"{}");
+// ===== Load Site Settings from LocalStorage =====
+const siteLogo = localStorage.getItem("siteLogo");
+if(siteLogo) document.getElementById("siteLogo").src = siteLogo;
 
-// LOGO
-document.getElementById("siteLogo").src = settings.logo||"logo.png";
+const siteName = localStorage.getItem("siteName") || "GAMING X LIGHT STORE";
+document.getElementById("siteName").innerHTML = siteName.replace("LIGHT","<span>LIGHT</span>");
 
-// OFFICIAL LINKS
-const linksDiv = document.getElementById("officialLinks");
-if(settings.youtube){
-  const a = document.createElement("a"); a.href=settings.youtube; a.target="_blank"; a.className="link-btn";
-  a.innerText="▶ YouTube : GAMING X LIGHT"; linksDiv.appendChild(a);
-}
-if(settings.proof){
-  const a = document.createElement("a"); a.href=settings.proof; a.target="_blank"; a.className="link-btn";
-  a.innerText="📢 Proof Channel"; linksDiv.appendChild(a);
-}
-if(settings.support){
-  const a = document.createElement("a"); a.href=settings.support; a.target="_blank"; a.className="link-btn";
-  a.innerText="🛠 Admin Support"; linksDiv.appendChild(a);
-}
+const siteSubtitle = localStorage.getItem("siteSubtitle") || "Premium Free Fire Tools & Bots";
+document.getElementById("siteSubtitle").innerText = siteSubtitle;
 
-// ===== LOAD PRODUCTS =====
+const productsTitle = localStorage.getItem("productsTitle") || "GUILD GLORY BOT PLANS";
+document.getElementById("productsTitle").innerText = productsTitle;
+
+const officialLinks = JSON.parse(localStorage.getItem("officialLinks") || "[]");
+const linksContainer = document.getElementById("officialLinksContainer");
+officialLinks.forEach(link=>{
+  const a = document.createElement("a");
+  a.className="link-btn";
+  a.href=link.url;
+  a.target="_blank";
+  a.innerText=link.name;
+  linksContainer.appendChild(a);
+});
+
+// ===== Load Products =====
 const wrap = document.getElementById("products");
-let products = JSON.parse(localStorage.getItem("products")||"[]");
-
-products.forEach(p=>{
+let PRODUCTS = JSON.parse(localStorage.getItem("products")||"[]");
+PRODUCTS.forEach(p=>{
   wrap.innerHTML += `<div class="card">
     <span class="badge">${p.badge}</span>
     <h3>${decodeURIComponent(p.name)}</h3>
@@ -87,11 +102,13 @@ products.forEach(p=>{
   </div>`;
 });
 
-// ===== BUY FUNCTION (QR & PAY) =====
+// ===== Buy Button =====
 function buy(name,price){
-  const qrPage = "qr.html";
-  const url = `${qrPage}?product=${encodeURIComponent(name)}&price=${price}&qr=${encodeURIComponent(settings.qr||"qr.png")}&upi=${encodeURIComponent(settings.upi||"kumaripalak0@fam")}`;
-  window.location.href = url;
+  const qrImage = localStorage.getItem("qrImage") || "qr.png";
+  const upiID = localStorage.getItem("upiID") || "kumaripalak0@fam";
+  // Send to qr page with product & price in URL
+  const url = `qr.html?product=${name}&price=${price}&qr=${encodeURIComponent(qrImage)}&upi=${encodeURIComponent(upiID)}`;
+  window.location.href=url;
 }
 </script>
 
