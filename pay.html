@@ -9,19 +9,54 @@
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
 (function(){
-  emailjs.init("lDpUNN_uwsW-vT8_2"); // ✅ PUBLIC KEY
+  emailjs.init("lDpUNN_uwsW-vT8_2"); // PUBLIC KEY
 })();
 </script>
 
 <style>
-body{margin:0;font-family:Arial;background:#0b0b0f;color:#fff}
-.container{max-width:420px;margin:30px auto;background:#141414;padding:22px;border-radius:16px;border:1px solid rgba(255,255,255,.1)}
-h2{text-align:center;margin-bottom:20px}
-input,select,button{width:100%;padding:14px;margin-bottom:14px;border-radius:10px;border:none;font-size:14px}
-input,select{background:#0f0f0f;color:#fff}
-button{background:#a855f7;color:#000;font-weight:800;cursor:pointer}
-button:disabled{opacity:.6}
-small{opacity:.6}
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0b0b0f;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.container{
+  width:100%;
+  max-width:420px;
+  background:#141414;
+  padding:25px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.1);
+  text-align:center;
+  box-shadow:0 0 25px rgba(168,85,247,.4);
+}
+.logo{
+  width:120px;
+  margin-bottom:15px;
+}
+h2{margin-bottom:20px;}
+input,select,button{
+  width:100%;
+  padding:14px;
+  margin-bottom:14px;
+  border-radius:10px;
+  border:none;
+  font-size:14px;
+  outline:none;
+}
+input,select{background:#0f0f0f;color:#fff;}
+button{
+  background:#a855f7;
+  color:#000;
+  font-weight:800;
+  cursor:pointer;
+}
+button:disabled{opacity:.6;cursor:not-allowed;}
+small{opacity:.6;}
 </style>
 </head>
 
@@ -29,103 +64,124 @@ small{opacity:.6}
 
 <div class="container">
 
-<form id="orderForm">
-  <h2>Submit Payment Details</h2>
+  <!-- LOGO -->
+  <img src="logo.png" class="logo" alt="Gaming X Light">
 
-  <input type="text" id="product" readonly>
+  <form id="orderForm">
+    <h2>Submit Payment Details</h2>
 
-  <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
-  <input type="text" id="uid" placeholder="Guild UID" required>
+    <input type="text" id="product" readonly>
 
-  <select id="region">
-    <option>🇮🇳 India</option>
-    <option>🌍 Other</option>
-  </select>
+    <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
+    <input type="text" id="uid" placeholder="Guild UID (Example: 100200300)" required>
 
-  <input type="text" id="telegram" placeholder="Telegram Username" required>
-  <input type="tel" id="whatsapp" placeholder="WhatsApp Number" required>
-  <input type="email" id="email" placeholder="Your Email Address" required>
+    <select id="region">
+      <option value="India">🇮🇳 India</option>
+      <option value="Other">🌍 Other</option>
+    </select>
 
-  <button type="submit" id="submitBtn">SUBMIT ORDER</button>
-  <small>Please wait 10–30 minutes.</small>
-</form>
+    <input type="text" id="telegram" placeholder="Telegram Username (@username)" required>
+    <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
+    <input type="email" id="email" placeholder="Your Email Address" required>
 
-<div id="successBox" style="display:none;text-align:center;">
-  <h2 style="color:#00ffcc;">✅ ORDER RECEIVED!</h2>
-  <p>Payment received. Please wait 10–30 minutes.</p>
+    <button type="submit" id="submitBtn">SUBMIT ORDER</button>
+    <small>Please wait 10–30 minutes after submission.</small>
+  </form>
 
-  <a href="index.html"
-     style="display:inline-block;margin-top:20px;padding:14px 22px;
-     background:#a855f7;color:#000;font-weight:800;
-     border-radius:10px;text-decoration:none;">
-     ⬅ BACK TO HOME
-  </a>
-</div>
+  <div id="successBox" style="display:none;">
+    <h2 style="color:#00ffcc;">✅ ORDER RECEIVED!</h2>
+    <p>
+      Payment details received.<br>
+      Please wait <b>10–30 minutes</b>.<br>
+      Admin will verify your payment.
+    </p>
+
+    <a href="index.html"
+       style="display:inline-block;margin-top:20px;padding:14px 22px;
+              background:#a855f7;color:#000;font-weight:800;
+              border-radius:10px;text-decoration:none;">
+      ⬅ BACK TO HOME
+    </a><br><br>
+
+    <a href="https://t.me/Gameralsor"
+       style="color:#a855f7;text-decoration:none;">
+       👉 Telegram Support
+    </a>
+  </div>
 
 </div>
 
 <script>
+// GET PRODUCT & PRICE
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = params.get("price");
 
 if(!product || !price){
-  alert("Invalid access");
+  alert("❌ Invalid access!");
   window.location.href="index.html";
 }
 
 document.getElementById("product").value =
   decodeURIComponent(product) + " - ₹" + price;
 
-let submitted = false;
-
+// SUBMIT FORM
 document.getElementById("orderForm").addEventListener("submit", async function(e){
   e.preventDefault();
-  if(submitted) return;
-  submitted = true;
 
-  document.getElementById("submitBtn").disabled = true;
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.innerText = "PLEASE WAIT...";
 
   const data = {
-    username: "Guest",
     product: decodeURIComponent(product),
     price: price,
-    utr: document.getElementById("utr").value,
-    uid: document.getElementById("uid").value,
-    region: document.getElementById("region").value,
-    telegram: document.getElementById("telegram").value,
-    whatsapp: document.getElementById("whatsapp").value,
-    email: document.getElementById("email").value
+    utr: utr.value,
+    uid: uid.value,
+    region: region.value,
+    telegram: telegram.value,
+    whatsapp: whatsapp.value,
+    email: email.value
   };
 
-  // Save order locally (admin.html reads this)
-  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-  orders.push(data);
-  localStorage.setItem("orders", JSON.stringify(orders));
-
   try{
-    // ✅ ADMIN MAIL (ONCE)
+    // SAVE TO SUPABASE
+    const res = await fetch(
+      "https://dsrevynaanjmepnufzqi.supabase.co/rest/v1/orders",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "apikey":"YOUR_SUPABASE_ANON_KEY",
+          "Authorization":"Bearer YOUR_SUPABASE_ANON_KEY"
+        },
+        body:JSON.stringify(data)
+      }
+    );
+    if(!res.ok) throw new Error("Supabase error");
+
+    // EMAIL → ADMIN (1)
     await emailjs.send(
-      "service_smicrkx",
+      "service_sd0ge44",
       "template_eclz1lh",
       data
     );
 
-    // ✅ CUSTOMER MAIL (ONCE)
+    // EMAIL → CUSTOMER (1)
     await emailjs.send(
-      "service_smicrkx",
-      "Customer_reply",
+      "service_sd0ge44",
+      "customer_reply",
       data
     );
 
-    document.getElementById("orderForm").style.display="none";
-    document.getElementById("successBox").style.display="block";
+    orderForm.style.display="none";
+    successBox.style.display="block";
 
   }catch(err){
     console.error(err);
-    alert("❌ Email failed. Try again later.");
-    submitted=false;
-    document.getElementById("submitBtn").disabled=false;
+    alert("❌ Error! Try again later.");
+    btn.disabled=false;
+    btn.innerText="SUBMIT ORDER";
   }
 });
 </script>
