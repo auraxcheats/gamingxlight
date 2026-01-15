@@ -142,15 +142,6 @@ if(!product || !price){
   document.getElementById("price").innerText = "₹" + price.toFixed(2);
 }
 
-// USER CHECK
-const user = JSON.parse(localStorage.getItem("loggedUser"));
-if(!user){
-  alert("❌ You must login first!");
-  window.location.href="login.html";
-} else {
-  document.getElementById("pname").innerText += " - " + user.username;
-}
-
 // GENERATE UPI QR CODE WITH AMOUNT
 const upiId = "sahimam@ptyes"; // Your UPI ID
 const upiUri = `upi://pay?pa=${upiId}&pn=Gaming X Light&am=${price}&cu=INR`;
