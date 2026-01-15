@@ -1,131 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Admin Panel | GAMING X LIGHT</title>
+<title>Admin Panel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{margin:0;font-family:Arial;background:#0b0b0f;color:#fff;padding:20px}
-.container{max-width:1200px;margin:auto;background:#141414;padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,.1)}
-h2{text-align:center;margin-bottom:20px;color:#a855f7}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{border:1px solid rgba(255,255,255,.15);padding:8px;text-align:center}
-th{background:#1f1f1f}
-button{padding:6px 10px;border:none;border-radius:6px;font-weight:700;cursor:pointer}
-.deleteBtn{background:#ff4d4d;color:#000}
-.editBtn{background:#facc15;color:#000;margin-left:5px}
-.exportBtn{background:#a855f7;color:#000;margin-top:15px}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-a{color:#a855f7;text-decoration:none;font-weight:700;margin-left:10px}
-input,select{width:150px;padding:6px;margin:4px;border-radius:6px;background:#0f0f0f;color:#fff;border:none}
+body{background:#0b0b0f;color:#fff;font-family:Arial}
+.box{background:#141414;margin:15px;padding:15px;border-radius:10px}
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="topbar">
-    <h2>🛡 Admin Dashboard</h2>
-    <div>
-      <a href="index.html">⬅ Home</a>
-      <a href="#" onclick="logout()">Logout</a>
-    </div>
-  </div>
-
-  <h3>📦 Products</h3>
-  <table id="productsTable"></table>
-  <button class="exportBtn" onclick="exportProducts()">⬇ Export Products CSV</button>
-
-  <h3>📥 Orders</h3>
-  <table id="ordersTable"></table>
-  <button class="exportBtn" onclick="exportOrders()">⬇ Export Orders CSV</button>
-
-  <h3>Add New Product</h3>
-  <input type="text" id="newName" placeholder="Name">
-  <input type="text" id="newBadge" placeholder="Badge">
-  <input type="number" id="newPrice" placeholder="Price">
-  <button onclick="addProduct()">Add Product</button>
-</div>
+<h2>ADMIN ORDERS</h2>
 
 <script>
-const ADMIN_PASSWORD = "gamingxlight";
-if(!sessionStorage.getItem("isAdmin")){
-  const pass = prompt("Enter Admin Password:");
-  if(pass !== ADMIN_PASSWORD) location.href="index.html";
-  else sessionStorage.setItem("isAdmin","true");
-}
-function logout(){sessionStorage.removeItem("isAdmin");location.href="index.html";}
+const pass=prompt("Admin Password");
+if(pass!=="gaming_x_light") location.href="index.html";
 
-// Supabase config
-const URL = 'https://dsrevynaanjmepnufzqi.supabase.co/rest/v1';
-const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-
-// Load products
-async function loadProducts(){
-  const res = await fetch(`${URL}/products`,{
-    headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
-  });
-  const products = await res.json();
-  const table = document.getElementById("productsTable");
-  table.innerHTML=`<tr><th>#</th><th>Name</th><th>Badge</th><th>Price</th><th>Actions</th></tr>`;
-  products.forEach((p,i)=>{
-    const row = table.insertRow();
-    row.insertCell().innerText=i+1;
-    row.insertCell().innerText=p.name;
-    row.insertCell().innerText=p.badge;
-    row.insertCell().innerText=p.price;
-    const cell = row.insertCell();
-    const del = document.createElement("button");
-    del.innerText="Delete"; del.className="deleteBtn";
-    del.onclick=()=>{ deleteProduct(p.id); };
-    cell.appendChild(del);
-  });
-}
-
-// Add product
-async function addProduct(){
-  const name = document.getElementById("newName").value;
-  const badge = document.getElementById("newBadge").value;
-  const price = document.getElementById("newPrice").value;
-  if(!name||!badge||!price) return alert("Fill all fields!");
-  await fetch(`${URL}/products`,{
-    method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'},
-    body:JSON.stringify({name,badge,price})
-  });
-  loadProducts();
-}
-
-// Delete product
-async function deleteProduct(id){
-  if(!confirm("Delete this product?")) return;
-  await fetch(`${URL}/products?id=eq.${id}`,{method:'DELETE',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
-  loadProducts();
-}
-
-// Load orders
-async function loadOrders(){
-  const res = await fetch(`${URL}/orders`,{headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
-  const orders = await res.json();
-  const table = document.getElementById("ordersTable");
-  table.innerHTML=`<tr><th>#</th><th>Product</th><th>Price</th><th>UTR</th><th>Guild UID</th><th>Region</th><th>Telegram</th><th>WhatsApp</th><th>Email</th></tr>`;
-  orders.forEach((o,i)=>{
-    const row=table.insertRow();
-    row.insertCell().innerText=i+1;
-    row.insertCell().innerText=o.product;
-    row.insertCell().innerText=o.price;
-    row.insertCell().innerText=o.utr;
-    row.insertCell().innerText=o.uid;
-    row.insertCell().innerText=o.region;
-    row.insertCell().innerText=o.telegram;
-    row.insertCell().innerText=o.whatsapp;
-    row.insertCell().innerText=o.email;
-  });
-}
-
-// CSV Export
-function exportProducts(){ /* similar to above */ }
-function exportOrders(){ /* similar to above */ }
-
-loadProducts(); loadOrders();
+const orders=JSON.parse(localStorage.getItem("orders")||"[]");
+orders.reverse().forEach(o=>{
+document.body.innerHTML+=`
+<div class="box">
+<b>${o.product}</b><br>
+UTR: ${o.utr}<br>
+UID: ${o.uid}<br>
+Email: ${o.email}<br>
+Time: ${o.time}
+</div>`;
+});
 </script>
+
 </body>
 </html>
