@@ -7,88 +7,59 @@
 <style>
 :root{--purple:#a855f7;--border:rgba(255,255,255,.08)}
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:radial-gradient(circle at top,#1c1030,#0b0b0f 65%);color:#fff}
-.header{display:flex;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center}
-.header img{height:60px;width:auto;border-radius:8px}
-.header h1{margin:0;font-size:32px;font-weight:900;letter-spacing:2px;text-align:center}
-.header h1 span{color:var(--purple)}
-.subtitle{text-align:center;opacity:.75}
-.divider{width:80%;max-width:420px;height:2px;background:linear-gradient(90deg,transparent,var(--purple),transparent);margin:10px auto 20px}
-.section-title{text-align:center;padding:20px 0}
-.wrap{max-width:720px;margin:auto;padding:16px}
-.card{background:#141414;border-radius:16px;padding:20px;margin-bottom:24px;border:1px solid var(--border)}
+body{margin:0;font-family:Arial;background:radial-gradient(circle at top,#1c1030,#0b0b0f 65%);color:#fff;text-align:center}
+.hero{padding:50px 16px 20px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.hero img{width:80px;height:auto}
+.hero h1{margin:0;font-size:36px;font-weight:900;letter-spacing:2px;text-align:center}
+.hero h1 span{color:var(--purple)}
+.subtitle{opacity:.75}
+.divider{width:80%;max-width:420px;height:2px;background:linear-gradient(90deg,transparent,var(--purple),transparent);margin:20px auto}
+.section-title{text-align:center;padding:30px 0}
+.wrap{max-width:720px;margin:auto;padding:16px;display:flex;flex-direction:column;gap:20px}
+.card{background:#141414;border-radius:16px;padding:20px;border:1px solid var(--border)}
 .badge{background:var(--purple);color:#000;display:inline-block;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:800}
-.price{font-size:28px;color:var(--purple);font-weight:900;margin-top:5px}
-.buy{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:10px;border:2px solid var(--purple);color:var(--purple);text-decoration:none;font-weight:800;cursor:pointer}
+.price{font-size:34px;color:var(--purple);font-weight:900}
+.buy{display:block;text-align:center;margin-top:15px;padding:14px;border-radius:10px;border:2px solid var(--purple);color:var(--purple);text-decoration:none;font-weight:800;cursor:pointer}
 .buy:hover{background:var(--purple);color:#000}
-.links{text-align:center;padding:30px 0}
-.link-btn{display:block;max-width:320px;margin:12px auto;padding:12px;border-radius:12px;background:#141414;border:1px solid var(--border);color:#fff;text-decoration:none;font-weight:700}
-.link-btn:hover{border-color:var(--purple)}
+.links{text-align:center;padding:40px 0;display:flex;flex-direction:column;gap:12px;align-items:center}
+.link-btn{display:block;max-width:320px;padding:14px;border-radius:12px;background:#141414;border:1px solid var(--border);color:#fff;text-decoration:none;font-weight:700}
 footer{text-align:center;opacity:.5;font-size:12px;padding:14px}
 </style>
 </head>
 <body>
 
-<!-- HEADER WITH LOGO -->
-<div class="header">
-  <img id="siteLogo" src="" alt="Logo">
-  <h1><span id="storeName">GAMING X</span> LIGHT</h1>
+<div class="hero">
+  <img src="logo.png" alt="Logo">
+  <h1>GAMING X<br><span>LIGHT</span><br>STORE</h1>
+  <p class="subtitle">Premium Free Fire Tools & Bots</p>
+  <div class="divider"></div>
 </div>
-<p class="subtitle" id="tagline">Premium Free Fire Tools & Bots</p>
-<div class="divider"></div>
 
-<!-- PRODUCTS SECTION -->
 <div class="section-title"><h2>GUILD GLORY BOT PLANS</h2></div>
 <div class="wrap" id="products"></div>
 
-<!-- SOCIAL LINKS -->
-<div class="links">
-  <h2>OFFICIAL LINKS</h2>
-  <a class="link-btn" id="youtubeLink" target="_blank">▶ YouTube</a>
-  <a class="link-btn" id="proofLink" target="_blank">📢 Proof Channel</a>
-  <a class="link-btn" id="supportLink" target="_blank">🛠 Admin Support</a>
-</div>
-
+<div class="links" id="socialLinks"></div>
 <footer>© 2026 GAMING X LIGHT Store</footer>
 
 <script>
-// ==================== LOAD SITE DATA ====================
-const siteData = JSON.parse(localStorage.getItem("siteData") || `{
-  "logo":"logo.png",
-  "storeName":"GAMING X LIGHT",
-  "tagline":"Premium Free Fire Tools & Bots",
-  "qr":{"img":"qr.png","upi":"kumaripalak0@fam"},
-  "socialLinks":{"youtube":"https://www.youtube.com/@shah_emam_raja","proof":"https://t.me/glorybotsellproof","support":"https://t.me/Gameralsor"},
-  "products":[]
-}`);
+const PRODUCTS=JSON.parse(localStorage.getItem("PRODUCTS")||"[]");
+const SETTINGS=JSON.parse(localStorage.getItem("SETTINGS")||"{}");
 
-// HEADER
-document.getElementById("siteLogo").src = siteData.logo;
-document.getElementById("storeName").innerText = siteData.storeName;
-document.getElementById("tagline").innerText = siteData.tagline;
-
-// SOCIAL LINKS
-document.getElementById("youtubeLink").href = siteData.socialLinks.youtube;
-document.getElementById("youtubeLink").innerText = "▶ YouTube : " + siteData.storeName;
-document.getElementById("proofLink").href = siteData.socialLinks.proof;
-document.getElementById("supportLink").href = siteData.socialLinks.support;
-
-// PRODUCTS
-const wrap = document.getElementById("products");
-siteData.products.forEach(p=>{
-  wrap.innerHTML += `<div class="card">
-    <span class="badge">${p.badge}</span>
-    <h3>${decodeURIComponent(p.name)}</h3>
+const wrap=document.getElementById("products");
+PRODUCTS.forEach(p=>{
+  const card=document.createElement("div"); card.className="card";
+  card.innerHTML=`<span class="badge">${p.badge}</span>
+    <h3>${p.name}</h3>
     <div class="price">₹${p.price}</div>
     <ul>${p.features.map(f=>`<li>✓ ${f}</li>`).join("")}</ul>
-    <a class="buy" onclick="buy('${encodeURIComponent(p.name)}',${p.price})">BUY NOW</a>
-  </div>`;
+    <a class="buy" href="./qr.html?product=${encodeURIComponent(p.name)}&price=${p.price}">BUY NOW</a>`;
+  wrap.appendChild(card);
 });
 
-// BUY BUTTON
-function buy(name,price){
-  window.location.href=`./qr.html?product=${name}&price=${price}`;
-}
+const social=document.getElementById("socialLinks");
+if(SETTINGS.yt) social.innerHTML+=`<a class="link-btn" href="${SETTINGS.yt}" target="_blank">▶ YouTube : GAMING X LIGHT</a>`;
+if(SETTINGS.proof) social.innerHTML+=`<a class="link-btn" href="${SETTINGS.proof}" target="_blank">📢 Proof Channel</a>`;
+if(SETTINGS.support) social.innerHTML+=`<a class="link-btn" href="${SETTINGS.support}" target="_blank">🛠 Admin Support</a>`;
 </script>
 
 </body>
