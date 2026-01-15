@@ -8,9 +8,7 @@
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
-(function(){
-  emailjs.init("lDpUNN_uwsW-vT8_2");
-})();
+(function(){ emailjs.init("lDpUNN_uwsW-vT8_2"); })();
 </script>
 
 <style>
@@ -28,6 +26,7 @@ small{opacity:.6}
 <body>
 
 <div class="container">
+
 <form id="orderForm">
   <h2>Submit Payment Details</h2>
 
@@ -48,10 +47,24 @@ small{opacity:.6}
 
 <div id="successBox" style="display:none;text-align:center;">
   <h2 style="color:#00ffcc;">✅ ORDER RECEIVED!</h2>
-  <p>Payment details & Guild UID received.<br>Please wait <b>10–30 minutes</b>.</p>
-  <a href="index.html" style="display:inline-block;margin-top:20px;padding:14px 22px;background:#a855f7;color:#000;font-weight:800;border-radius:10px;text-decoration:none;">⬅ BACK TO HOME</a><br><br>
-  <a href="https://t.me/Gameralsor" style="color:#a855f7;text-decoration:none;">👉 Telegram Support</a>
+  <p>
+    Payment details & Guild UID received.<br>
+    Please wait <b>10–30 minutes</b>.
+  </p>
+
+  <a href="index.html"
+     style="display:inline-block;margin-top:20px;
+     padding:14px 22px;background:#a855f7;
+     color:#000;font-weight:800;border-radius:10px;
+     text-decoration:none;">
+     ⬅ BACK TO HOME
+  </a><br><br>
+
+  <a href="#" style="color:#a855f7;text-decoration:none;">
+     👉 Telegram Support
+  </a>
 </div>
+
 </div>
 
 <script>
@@ -65,7 +78,8 @@ if(!product || !price){
   window.location.href = "index.html";
 }
 
-document.getElementById("product").value = decodeURIComponent(product) + " - ₹" + price;
+document.getElementById("product").value =
+  decodeURIComponent(product) + " - ₹" + price;
 
 let submitted = false;
 
@@ -86,20 +100,16 @@ document.getElementById("orderForm").addEventListener("submit", async function(e
     region: document.getElementById("region").value,
     telegram: document.getElementById("telegram").value,
     whatsapp: document.getElementById("whatsapp").value,
-    email: document.getElementById("email").value,
-    username: "Guest" // since no login
+    email: document.getElementById("email").value
   };
 
-  // SAVE ORDER LOCALLY (for admin panel)
+  // SAVE ORDER (ADMIN PANEL)
   let orders = JSON.parse(localStorage.getItem("orders") || "[]");
   orders.push(data);
   localStorage.setItem("orders", JSON.stringify(orders));
 
   try{
-    // SEND EMAIL TO ADMIN
     await emailjs.send("service_sd0ge44","template_eclz1lh",data);
-
-    // OPTIONAL: Customer auto-reply
     await emailjs.send("service_sd0ge44","customer_reply",data);
 
     document.getElementById("orderForm").style.display="none";
