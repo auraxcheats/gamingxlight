@@ -4,10 +4,6 @@
 <meta charset="UTF-8">
 <title>Scan & Pay | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- QRCode.js library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
 <style>
 body {
   margin: 0;
@@ -26,11 +22,30 @@ body {
   box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
   position: relative;
 }
-.logo { width: 120px; margin-bottom: 20px; }
-.qr-container { position: relative; display: inline-block; margin: 15px 0; }
-.qr-container canvas { border-radius: 14px; box-shadow: 0 0 25px #a855f7; animation: glow 1.5s infinite alternate; }
-@keyframes glow { 0% { box-shadow: 0 0 10px #a855f7; } 100% { box-shadow: 0 0 30px #facc15; } }
-.upi { font-size: 18px; font-weight: bold; margin-top: 10px; }
+.logo {
+  width: 120px;
+  margin-bottom: 20px;
+}
+.qr-container {
+  position: relative;
+  display: inline-block;
+}
+.qr-container canvas {
+  width: 220px !important;
+  height: 220px !important;
+  border-radius: 14px;
+  box-shadow: 0 0 20px #a855f7;
+  animation: glow 1.5s infinite alternate;
+}
+@keyframes glow {
+  0% { box-shadow: 0 0 10px #a855f7; }
+  100% { box-shadow: 0 0 30px #facc15; }
+}
+.upi {
+  margin-top: 15px;
+  font-size: 18px;
+  font-weight: bold;
+}
 button {
   margin-top: 25px;
   padding: 14px 22px;
@@ -43,25 +58,30 @@ button {
 }
 button:hover { opacity: 0.9; }
 
-/* Popup */
+/* Popup styles */
 #popup {
   display: none;
   position: fixed;
-  top:0; left:0; right:0; bottom:0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.85);
   justify-content: center;
   align-items: center;
   z-index: 9999;
   flex-direction: column;
 }
-#popup img { max-width: 300px; border-radius: 16px; }
+#popup img {
+  max-width: 300px;
+  border-radius: 16px;
+}
 #popup .text {
   color: #00ffcc;
   font-weight: bold;
   margin-top: 15px;
   font-size: 16px;
 }
-#popup .btn-container { margin-top: 20px; }
+#popup .btn-container {
+  margin-top: 20px;
+}
 #popup .continue-btn {
   padding: 12px 20px;
   background: #facc15;
@@ -84,8 +104,8 @@ button:hover { opacity: 0.9; }
   <h2 id="pname">Loading...</h2>
   <h3 id="price"></h3>
 
-  <!-- Dynamic QR Code -->
-  <div class="qr-container" id="qrCode"></div>
+  <!-- QR Code -->
+  <div class="qr-container" id="qr"></div>
 
   <!-- UPI -->
   <p class="upi" id="upiId">sahimam@ptyes</p>
@@ -106,6 +126,8 @@ button:hover { opacity: 0.9; }
   </div>
 </div>
 
+<!-- QR Code Library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
 // GET PRODUCT & PRICE
 const params = new URLSearchParams(window.location.search);
@@ -119,33 +141,21 @@ if(!product || !price){
   document.getElementById("price").innerText = "₹" + price.toFixed(2);
 }
 
-// USER CHECK
-const user = JSON.parse(localStorage.getItem("loggedUser"));
-if(!user){
-  alert("❌ You must login first!");
-  window.location.href="login.html";
-} else {
-  document.getElementById("pname").innerText += " - " + user.username;
-}
+// SET UPI QR WITH AMOUNT
+const upiId = "sahimam@ptyes"; // Replace with your UPI ID
+const upiName = "Gaming X Light"; // Payee name
+const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName)}&am=${price.toFixed(2)}&cu=INR`;
 
-// GENERATE DYNAMIC UPI QR
-const upiId = "sahimam@ptyes";
-const payeeName = "GAMING X LIGHT";
-const upiLink = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${price}&cu=INR`;
-
-new QRCode(document.getElementById("qrCode"), {
-  text: upiLink,
-  width: 220,
-  height: 220,
-  colorDark: "#a855f7",
-  colorLight: "#0b0b0f",
-  correctLevel: QRCode.CorrectLevel.H
+QRCode.toCanvas(document.getElementById("qr"), upiUri, { width: 220, margin: 1 }, function (error) {
+  if (error) console.error(error);
 });
+
+// UPDATE UPI TEXT
+document.getElementById("upiId").innerText = upiId;
 
 // I HAVE PAID BUTTON
 document.getElementById("paidBtn").addEventListener("click", () => {
-  const popup = document.getElementById("popup");
-  popup.style.display = "flex";
+  document.getElementById("popup").style.display = "flex";
 });
 
 // CONTINUE BUTTON
