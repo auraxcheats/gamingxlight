@@ -2,97 +2,80 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GAMING X LIGHT STORE</title>
+<title>GAMING X LIGHT Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 :root{--purple:#a855f7;--border:rgba(255,255,255,.08)}
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial;background:radial-gradient(circle at top,#1c1030,#0b0b0f 65%);color:#fff}
-.hero{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:50px 16px 20px;
-  text-align:center;
-  flex-direction:column;
-}
-.hero-logo{
-  width:60px;
-  height:60px;
-  object-fit:contain;
-  margin-bottom:12px;
-}
-.hero h1{
-  margin:0;
-  font-size:36px;
-  font-weight:900;
-  letter-spacing:2px;
-}
-.hero h1 span{color:var(--purple)}
-.subtitle{opacity:.75;margin-top:8px}
-.divider{width:80%;max-width:420px;height:2px;background:linear-gradient(90deg,transparent,var(--purple),transparent);margin:20px auto}
-.section-title{text-align:center;padding:30px 0}
+.header{display:flex;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center}
+.header img{height:60px;width:auto;border-radius:8px}
+.header h1{margin:0;font-size:32px;font-weight:900;letter-spacing:2px;text-align:center}
+.header h1 span{color:var(--purple)}
+.subtitle{text-align:center;opacity:.75}
+.divider{width:80%;max-width:420px;height:2px;background:linear-gradient(90deg,transparent,var(--purple),transparent);margin:10px auto 20px}
+.section-title{text-align:center;padding:20px 0}
 .wrap{max-width:720px;margin:auto;padding:16px}
 .card{background:#141414;border-radius:16px;padding:20px;margin-bottom:24px;border:1px solid var(--border)}
 .badge{background:var(--purple);color:#000;display:inline-block;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:800}
-.price{font-size:34px;color:var(--purple);font-weight:900}
-.buy{display:block;text-align:center;margin-top:15px;padding:14px;border-radius:10px;border:2px solid var(--purple);color:var(--purple);text-decoration:none;font-weight:800;cursor:pointer}
+.price{font-size:28px;color:var(--purple);font-weight:900;margin-top:5px}
+.buy{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:10px;border:2px solid var(--purple);color:var(--purple);text-decoration:none;font-weight:800;cursor:pointer}
 .buy:hover{background:var(--purple);color:#000}
-.links{text-align:center;padding:40px 0}
-.link-btn{display:block;max-width:320px;margin:12px auto;padding:14px;border-radius:12px;background:#141414;border:1px solid var(--border);color:#fff;text-decoration:none;font-weight:700}
+.links{text-align:center;padding:30px 0}
+.link-btn{display:block;max-width:320px;margin:12px auto;padding:12px;border-radius:12px;background:#141414;border:1px solid var(--border);color:#fff;text-decoration:none;font-weight:700}
 .link-btn:hover{border-color:var(--purple)}
 footer{text-align:center;opacity:.5;font-size:12px;padding:14px}
 </style>
 </head>
 <body>
 
-<div class="hero">
-  <img class="hero-logo" id="siteLogo" src="" alt="Logo">
-  <h1 id="siteName">GAMING X <span>LIGHT</span> STORE</h1>
-  <p class="subtitle" id="siteSubtitle">Premium Free Fire Tools & Bots</p>
-  <div class="divider"></div>
+<!-- HEADER WITH LOGO -->
+<div class="header">
+  <img id="siteLogo" src="" alt="Logo">
+  <h1><span id="storeName">GAMING X</span> LIGHT</h1>
 </div>
+<p class="subtitle" id="tagline">Premium Free Fire Tools & Bots</p>
+<div class="divider"></div>
 
-<div class="section-title">
-  <h2 id="productsTitle">GUILD GLORY BOT PLANS</h2>
-</div>
-
+<!-- PRODUCTS SECTION -->
+<div class="section-title"><h2>GUILD GLORY BOT PLANS</h2></div>
 <div class="wrap" id="products"></div>
 
-<div class="links" id="officialLinksContainer"></div>
+<!-- SOCIAL LINKS -->
+<div class="links">
+  <h2>OFFICIAL LINKS</h2>
+  <a class="link-btn" id="youtubeLink" target="_blank">▶ YouTube</a>
+  <a class="link-btn" id="proofLink" target="_blank">📢 Proof Channel</a>
+  <a class="link-btn" id="supportLink" target="_blank">🛠 Admin Support</a>
+</div>
 
 <footer>© 2026 GAMING X LIGHT Store</footer>
 
-<script src="product.js"></script>
 <script>
-// ===== Load Site Settings from LocalStorage =====
-const siteLogo = localStorage.getItem("siteLogo");
-if(siteLogo) document.getElementById("siteLogo").src = siteLogo;
+// ==================== LOAD SITE DATA ====================
+const siteData = JSON.parse(localStorage.getItem("siteData") || `{
+  "logo":"logo.png",
+  "storeName":"GAMING X LIGHT",
+  "tagline":"Premium Free Fire Tools & Bots",
+  "qr":{"img":"qr.png","upi":"kumaripalak0@fam"},
+  "socialLinks":{"youtube":"https://www.youtube.com/@shah_emam_raja","proof":"https://t.me/glorybotsellproof","support":"https://t.me/Gameralsor"},
+  "products":[]
+}`);
 
-const siteName = localStorage.getItem("siteName") || "GAMING X LIGHT STORE";
-document.getElementById("siteName").innerHTML = siteName.replace("LIGHT","<span>LIGHT</span>");
+// HEADER
+document.getElementById("siteLogo").src = siteData.logo;
+document.getElementById("storeName").innerText = siteData.storeName;
+document.getElementById("tagline").innerText = siteData.tagline;
 
-const siteSubtitle = localStorage.getItem("siteSubtitle") || "Premium Free Fire Tools & Bots";
-document.getElementById("siteSubtitle").innerText = siteSubtitle;
+// SOCIAL LINKS
+document.getElementById("youtubeLink").href = siteData.socialLinks.youtube;
+document.getElementById("youtubeLink").innerText = "▶ YouTube : " + siteData.storeName;
+document.getElementById("proofLink").href = siteData.socialLinks.proof;
+document.getElementById("supportLink").href = siteData.socialLinks.support;
 
-const productsTitle = localStorage.getItem("productsTitle") || "GUILD GLORY BOT PLANS";
-document.getElementById("productsTitle").innerText = productsTitle;
-
-const officialLinks = JSON.parse(localStorage.getItem("officialLinks") || "[]");
-const linksContainer = document.getElementById("officialLinksContainer");
-officialLinks.forEach(link=>{
-  const a = document.createElement("a");
-  a.className="link-btn";
-  a.href=link.url;
-  a.target="_blank";
-  a.innerText=link.name;
-  linksContainer.appendChild(a);
-});
-
-// ===== Load Products =====
+// PRODUCTS
 const wrap = document.getElementById("products");
-let PRODUCTS = JSON.parse(localStorage.getItem("products")||"[]");
-PRODUCTS.forEach(p=>{
+siteData.products.forEach(p=>{
   wrap.innerHTML += `<div class="card">
     <span class="badge">${p.badge}</span>
     <h3>${decodeURIComponent(p.name)}</h3>
@@ -102,13 +85,9 @@ PRODUCTS.forEach(p=>{
   </div>`;
 });
 
-// ===== Buy Button =====
+// BUY BUTTON
 function buy(name,price){
-  const qrImage = localStorage.getItem("qrImage") || "qr.png";
-  const upiID = localStorage.getItem("upiID") || "kumaripalak0@fam";
-  // Send to qr page with product & price in URL
-  const url = `qr.html?product=${name}&price=${price}&qr=${encodeURIComponent(qrImage)}&upi=${encodeURIComponent(upiID)}`;
-  window.location.href=url;
+  window.location.href=`./qr.html?product=${name}&price=${price}`;
 }
 </script>
 
