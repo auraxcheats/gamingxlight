@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <title>Scan & Pay | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- QRCode.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <style>
 body {
   margin: 0;
@@ -27,12 +31,9 @@ body {
   margin-bottom: 20px;
 }
 .qr-container {
-  position: relative;
-  display: inline-block;
+  margin: 20px 0;
 }
 .qr-container canvas {
-  width: 220px !important;
-  height: 220px !important;
   border-radius: 14px;
   box-shadow: 0 0 20px #a855f7;
   animation: glow 1.5s infinite alternate;
@@ -105,7 +106,9 @@ button:hover { opacity: 0.9; }
   <h3 id="price"></h3>
 
   <!-- QR Code -->
-  <div class="qr-container" id="qr"></div>
+  <div class="qr-container">
+    <div id="qr"></div>
+  </div>
 
   <!-- UPI -->
   <p class="upi" id="upiId">sahimam@ptyes</p>
@@ -126,8 +129,6 @@ button:hover { opacity: 0.9; }
   </div>
 </div>
 
-<!-- QR Code Library -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
 // GET PRODUCT & PRICE
 const params = new URLSearchParams(window.location.search);
@@ -141,17 +142,26 @@ if(!product || !price){
   document.getElementById("price").innerText = "₹" + price.toFixed(2);
 }
 
-// SET UPI QR WITH AMOUNT
-const upiId = "sahimam@ptyes"; // Replace with your UPI ID
-const upiName = "Gaming X Light"; // Payee name
-const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName)}&am=${price.toFixed(2)}&cu=INR`;
+// USER CHECK
+const user = JSON.parse(localStorage.getItem("loggedUser"));
+if(!user){
+  alert("❌ You must login first!");
+  window.location.href="login.html";
+} else {
+  document.getElementById("pname").innerText += " - " + user.username;
+}
 
-QRCode.toCanvas(document.getElementById("qr"), upiUri, { width: 220, margin: 1 }, function (error) {
-  if (error) console.error(error);
+// GENERATE UPI QR CODE WITH AMOUNT
+const upiId = "sahimam@ptyes"; // Your UPI ID
+const upiUri = `upi://pay?pa=${upiId}&pn=Gaming X Light&am=${price}&cu=INR`;
+new QRCode(document.getElementById("qr"), {
+  text: upiUri,
+  width: 220,
+  height: 220,
+  colorDark : "#000000",
+  colorLight : "#ffffff",
+  correctLevel : QRCode.CorrectLevel.H
 });
-
-// UPDATE UPI TEXT
-document.getElementById("upiId").innerText = upiId;
 
 // I HAVE PAID BUTTON
 document.getElementById("paidBtn").addEventListener("click", () => {
