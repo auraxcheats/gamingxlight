@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel | Gaming X Light</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#0b0b0f;
+  color:#fff;
+  padding:20px;
+}
+.container{
+  max-width:1200px;
+  margin:auto;
+  background:#141414;
+  padding:20px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.1);
+}
+h2{text-align:center;margin-bottom:20px;color:#a855f7}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+th,td{
+  border:1px solid rgba(255,255,255,.15);
+  padding:8px;
+  text-align:center;
+}
+th{background:#1f1f1f}
+button{
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  font-weight:700;
+  cursor:pointer;
+}
+.deleteBtn{background:#ff4d4d;color:#000}
+.exportBtn{
+  background:#a855f7;
+  color:#000;
+  margin-top:15px;
+}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+a{color:#a855f7;text-decoration:none;font-weight:700;margin-left:10px}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="topbar">
+    <h2>🛡 Admin Orders Panel</h2>
+    <div>
+      <a href="index.html">⬅ Home</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </div>
+  </div>
+
+  <h3>📦 Orders</h3>
+  <table id="ordersTable"></table>
+  <button class="exportBtn" id="exportOrdersBtn">⬇ Export Orders CSV</button>
+</div>
+
+<script>
+/* =============================
+   🔐 ADMIN PASSWORD
+============================= */
+const ADMIN_PASSWORD = "gaming_x_light"; // Change admin password
+let isAdmin = sessionStorage.getItem("isAdmin");
+if(!isAdmin){
+  const pass = prompt("🔐 Enter Admin Password:");
+  if(pass !== ADMIN_PASSWORD){
+    alert("❌ Access Denied!");
+    window.location.href = "index.html";
+  }else{
+    sessionStorage.setItem("isAdmin","true");
+  }
+}
+
+function logout(){
+  sessionStorage.removeItem("isAdmin");
+  window.location.href = "index.html";
+}
+
+/* =============================
+   📦 LOAD ORDERS FROM LOCALSTORAGE
+============================= */
+let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+const ordersTable = document.getElementById("ordersTable");
+
+function renderOrders(){
+  ordersTable.innerHTML = `
+    <tr>
+      <th>#</th>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Product</th>
+      <th>Price</th>
+      <th>UTR</th>
+      <th>Guild UID</th>
+      <th>Region</th>
+      <th>Telegram</th>
+      <th>WhatsApp</th>
+      <th>Action</th>
+    </tr>
+  `;
+
+  if(orders.length === 0){
+    const row = ordersTable.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 11;
+    cell.innerText = "No orders found.";
+    cell.style.opacity = ".6";
+    return;
+  }
+
+  orders.forEach((o,i)=>{
+    const row = ordersTable.insertRow();
+    row.insertCell().innerText = i+1;
+    row.insertCell().innerText = o.username || "Guest";
+    row.insertCell().innerText = o.email || "N/A";
+    row.insertCell().innerText = o.product;
+    row.insertCell().innerText = o.price;
+    row.insertCell().innerText = o.utr;
+    row.insertCell().innerText = o.uid;
+    row.insertCell().innerText = o.region;
+    row.insertCell().innerText = o.telegram;
+    row.insertCell().innerText = o.whatsapp;
+
+    const cell = row.insertCell();
+    const delBtn = document.createElement("button");
+    delBtn.innerText="Delete";
+    delBtn.className="deleteBtn";
+    delBtn.onclick=()=>{
+      if(confirm("Delete this order?")){
+        orders.splice(i,1);
+        saveOrders();
+      }
+    };
+    cell.appendChild(delBtn);
+  });
+}
+
+function saveOrders(){
+  localStorage.setItem("orders", JSON.stringify(orders));
+  renderOrders();
+}
+
+/* =============================
+   📤 EXPORT ORDERS CSV
+============================= */
+document.getElementById("exportOrdersBtn").addEventListener("click",()=>{
+  let csv = "Username,Email,Product,Price,UTR,Guild UID,Region,Telegram,WhatsApp\n";
+  orders.forEach(o=>{
+    csv+=`${o.username},${o.email},${o.product},${o.price},${o.utr},${o.uid},${o.region},${o.telegram},${o.whatsapp}\n`;
+  });
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "orders.csv";
+  a.click();
+});
+
+renderOrders();
+</script>
+
+</body>
+</html>
