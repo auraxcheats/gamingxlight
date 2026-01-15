@@ -7,58 +7,37 @@
 <style>
 body{background:#0b0b0f;color:#fff;font-family:Arial;text-align:center;padding:20px}
 .box{max-width:380px;margin:60px auto;padding:25px;background:#141414;border-radius:14px;box-shadow:0 0 20px rgba(168,85,247,.4)}
-h2,h1,h3{margin:6px 0}
+h2,h3,h1{margin:6px 0}
 button{padding:14px 22px;background:#a855f7;border:none;border-radius:10px;font-weight:800;cursor:pointer;margin-top:15px}
-button:hover{opacity:.9}
+img{border-radius:12px;margin-top:15px}
 a{color:#a855f7;text-decoration:none}
-img{border-radius:12px;margin-top:15px;max-width:220px}
 </style>
 </head>
 <body>
-
 <div class="box">
   <h3 id="username">Hello, Guest</h3>
   <h2 id="pname">Loading...</h2>
   <h1 id="price"></h1>
-
-  <img id="qrImage" src="qr.png" alt="Scan QR to Pay"><br>
-  <p><b>UPI ID:</b> <span id="upiID"></span></p>
-
+  <img id="qrImage" src="qr.png" width="220" alt="Scan QR to Pay"><br>
+  <p><b>UPI ID:</b> <span id="upiText">sahimam@ptyes</span></p>
   <button onclick="goPay()">I HAVE PAID</button>
   <p style="margin-top:15px"><a href="index.html">Back to Home</a></p>
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const product = params.get("product");
-const price = params.get("price");
+const params=new URLSearchParams(window.location.search);
+const product=params.get("product"),price=params.get("price");
+if(!product||!price){document.body.innerHTML="<h2>Invalid Access</h2><a href='index.html'>Go Home</a>";}
 
-// Load QR and UPI dynamically from localStorage (set by admin)
-const qrImage = localStorage.getItem("qrImage") || "qr.png";
-const upiID = localStorage.getItem("upiID") || "kumaripalak0@fam";
+document.getElementById("pname").innerText=decodeURIComponent(product);
+document.getElementById("price").innerText="₹"+price;
 
-document.getElementById("qrImage").src = decodeURIComponent(params.get("qr")) || qrImage;
-document.getElementById("upiID").innerText = decodeURIComponent(params.get("upi")) || upiID;
+// Load QR & UPI from settings
+const SETTINGS=JSON.parse(localStorage.getItem("SETTINGS")||"{}");
+if(SETTINGS.qr) document.getElementById("qrImage").src=SETTINGS.qr;
+if(SETTINGS.upi) document.getElementById("upiText").innerText=SETTINGS.upi;
 
-// Load product name and price
-if(!product || !price){
-  document.body.innerHTML = "<h2>Invalid Access</h2><a href='index.html'>Go Home</a>";
-}else{
-  document.getElementById("pname").innerText = decodeURIComponent(product);
-  document.getElementById("price").innerText = "₹" + price;
-}
-
-// Show username if logged user exists
-const user = JSON.parse(localStorage.getItem("loggedUser"));
-if(user){
-  document.getElementById("username").innerText = "Hello, " + user.username;
-}
-
-// Navigate to pay page
-function goPay(){
-  window.location.href = `pay.html?product=${encodeURIComponent(product)}&price=${price}`;
-}
+function goPay(){window.location.href="./pay.html?product="+encodeURIComponent(product)+"&price="+price;}
 </script>
-
 </body>
 </html>
