@@ -8,7 +8,9 @@
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
-(function(){ emailjs.init("lDpUNN_uwsW-vT8_2"); })();
+(function(){
+  emailjs.init("lDpUNN_uwsW-vT8_2"); // ✅ PUBLIC KEY
+})();
 </script>
 
 <style>
@@ -18,11 +20,8 @@ h2{text-align:center;margin-bottom:20px}
 input,select,button{width:100%;padding:14px;margin-bottom:14px;border-radius:10px;border:none;font-size:14px}
 input,select{background:#0f0f0f;color:#fff}
 button{background:#a855f7;color:#000;font-weight:800;cursor:pointer}
-button:disabled{opacity:.5;cursor:not-allowed}
+button:disabled{opacity:.6}
 small{opacity:.6}
-#successBox{text-align:center;display:none}
-#successBox h2{color:#00ffcc}
-#successBox a{color:#a855f7;text-decoration:none;font-weight:700}
 </style>
 </head>
 
@@ -33,29 +32,34 @@ small{opacity:.6}
 <form id="orderForm">
   <h2>Submit Payment Details</h2>
 
-  <input type="text" id="product" readonly placeholder="Product">
+  <input type="text" id="product" readonly>
 
   <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
-  <input type="text" id="uid" placeholder="Guild UID (Example: 100200300)" required>
+  <input type="text" id="uid" placeholder="Guild UID" required>
 
   <select id="region">
     <option>🇮🇳 India</option>
     <option>🌍 Other</option>
   </select>
 
-  <input type="text" id="telegram" placeholder="Telegram Username (@username)" required>
-  <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
+  <input type="text" id="telegram" placeholder="Telegram Username" required>
+  <input type="tel" id="whatsapp" placeholder="WhatsApp Number" required>
   <input type="email" id="email" placeholder="Your Email Address" required>
 
   <button type="submit" id="submitBtn">SUBMIT ORDER</button>
-  <small>Please wait 10–30 minutes after submission.</small>
+  <small>Please wait 10–30 minutes.</small>
 </form>
 
-<div id="successBox">
-  <h2>✅ ORDER RECEIVED!</h2>
-  <p>Payment details and Guild UID received.<br>Please wait <b>10–30 minutes</b>.<br>Admin will verify your payment.</p>
-  <a href="index.html">⬅ BACK TO HOME</a><br><br>
-  <a href="https://t.me/Gameralsor">👉 Telegram Support</a>
+<div id="successBox" style="display:none;text-align:center;">
+  <h2 style="color:#00ffcc;">✅ ORDER RECEIVED!</h2>
+  <p>Payment received. Please wait 10–30 minutes.</p>
+
+  <a href="index.html"
+     style="display:inline-block;margin-top:20px;padding:14px 22px;
+     background:#a855f7;color:#000;font-weight:800;
+     border-radius:10px;text-decoration:none;">
+     ⬅ BACK TO HOME
+  </a>
 </div>
 
 </div>
@@ -66,17 +70,12 @@ const product = params.get("product");
 const price = params.get("price");
 
 if(!product || !price){
-  alert("❌ Please complete payment first.");
+  alert("Invalid access");
   window.location.href="index.html";
-} else {
-  document.getElementById("product").value = decodeURIComponent(product) + " - ₹" + price;
 }
 
-const user = JSON.parse(localStorage.getItem("loggedUser"));
-if(!user){ 
-  alert("❌ Login required!"); 
-  window.location.href="login.html"; 
-}
+document.getElementById("product").value =
+  decodeURIComponent(product) + " - ₹" + price;
 
 let submitted = false;
 
@@ -85,43 +84,48 @@ document.getElementById("orderForm").addEventListener("submit", async function(e
   if(submitted) return;
   submitted = true;
 
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.innerText = "PLEASE WAIT...";
+  document.getElementById("submitBtn").disabled = true;
 
   const data = {
-    username: user.username,
-    email: document.getElementById("email").value,
-    product: document.getElementById("product").value,
+    username: "Guest",
+    product: decodeURIComponent(product),
+    price: price,
     utr: document.getElementById("utr").value,
     uid: document.getElementById("uid").value,
     region: document.getElementById("region").value,
     telegram: document.getElementById("telegram").value,
-    whatsapp: document.getElementById("whatsapp").value
+    whatsapp: document.getElementById("whatsapp").value,
+    email: document.getElementById("email").value
   };
 
-  // SAVE ORDER LOCALLY
-  let allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-  allOrders.push(data);
-  localStorage.setItem("orders", JSON.stringify(allOrders));
+  // Save order locally (admin.html reads this)
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  orders.push(data);
+  localStorage.setItem("orders", JSON.stringify(orders));
 
-  try {
-    // Send email to admin
-    await emailjs.send("service_smicrkx", "template_eclz1lh", data);
+  try{
+    // ✅ ADMIN MAIL (ONCE)
+    await emailjs.send(
+      "service_smicrkx",
+      "template_eclz1lh",
+      data
+    );
 
-    // Send email to customer
-    await emailjs.send("service_smicrkx", "Customer_reply", data);
+    // ✅ CUSTOMER MAIL (ONCE)
+    await emailjs.send(
+      "service_smicrkx",
+      "Customer_reply",
+      data
+    );
 
-    // Show success
-    document.getElementById("orderForm").style.display = "none";
-    document.getElementById("successBox").style.display = "block";
+    document.getElementById("orderForm").style.display="none";
+    document.getElementById("successBox").style.display="block";
 
-  } catch(err){
+  }catch(err){
     console.error(err);
-    alert("❌ Email failed! Try again later.");
-    submitted = false;
-    btn.disabled = false;
-    btn.innerText = "SUBMIT ORDER";
+    alert("❌ Email failed. Try again later.");
+    submitted=false;
+    document.getElementById("submitBtn").disabled=false;
   }
 });
 </script>
