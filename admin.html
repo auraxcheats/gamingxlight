@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Panel | Gaming X Light</title>
+<title>Admin Panel | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{
@@ -74,7 +74,7 @@ a{color:#a855f7;text-decoration:none;font-weight:700;margin-left:10px}
 /* =============================
    🔐 ADMIN PASSWORD
 ============================= */
-const ADMIN_PASSWORD = "gaming_x_light"; // Change admin password
+const ADMIN_PASSWORD = "gaming_x_light";
 let isAdmin = sessionStorage.getItem("isAdmin");
 if(!isAdmin){
   const pass = prompt("🔐 Enter Admin Password:");
@@ -161,7 +161,7 @@ function saveOrders(){
 document.getElementById("exportOrdersBtn").addEventListener("click",()=>{
   let csv = "Username,Email,Product,Price,UTR,Guild UID,Region,Telegram,WhatsApp\n";
   orders.forEach(o=>{
-    csv+=`${o.username},${o.email},${o.product},${o.price},${o.utr},${o.uid},${o.region},${o.telegram},${o.whatsapp}\n`;
+    csv+=`${o.username || "Guest"},${o.email || "N/A"},${o.product},${o.price},${o.utr},${o.uid},${o.region},${o.telegram},${o.whatsapp}\n`;
   });
   const blob = new Blob([csv], {type:"text/csv"});
   const a = document.createElement("a");
