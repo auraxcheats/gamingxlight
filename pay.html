@@ -12,117 +12,80 @@
 </script>
 
 <style>
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background: radial-gradient(circle at top,#1c1030,#0b0b0f 65%);
-  color:#fff;
-}
-.container{
-  max-width:450px;
-  margin:40px auto;
-  background:#141414;
-  padding:25px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.1);
-  text-align:center;
-}
-.logo{
-  width:120px;
-  margin-bottom:15px;
-}
-h2{
-  margin-bottom:20px;
-}
-input,select,button{
-  width:100%;
-  padding:14px;
-  margin-bottom:14px;
-  border-radius:10px;
-  border:none;
-  font-size:14px;
-  outline:none;
-}
-input,select{
-  background:#0f0f0f;
-  color:#fff;
-}
-button{
-  background:#a855f7;
-  color:#000;
-  font-weight:800;
-  cursor:pointer;
-}
-button:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
+body{margin:0;font-family:Arial;background:#0b0b0f;color:#fff}
+.container{max-width:420px;margin:30px auto;background:#141414;padding:22px;border-radius:16px;border:1px solid rgba(255,255,255,.1)}
+h2{text-align:center;margin-bottom:20px}
+input,select,button{width:100%;padding:14px;margin-bottom:14px;border-radius:10px;border:none;font-size:14px}
+input,select{background:#0f0f0f;color:#fff}
+button{background:#a855f7;color:#000;font-weight:800;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
 small{opacity:.6}
-#successBox{
-  display:none;
-  text-align:center;
-}
-#successBox h2{color:#00ffcc;}
+#successBox{text-align:center;display:none}
+#successBox h2{color:#00ffcc}
+#successBox a{color:#a855f7;text-decoration:none;font-weight:700}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <img src="logo.png" class="logo" alt="Gaming X Light Logo">
 
-  <form id="orderForm">
-    <h2>Submit Payment Details</h2>
+<form id="orderForm">
+  <h2>Submit Payment Details</h2>
 
-    <input type="text" id="product" readonly>
+  <input type="text" id="product" readonly placeholder="Product">
 
-    <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
-    <input type="text" id="uid" placeholder="Guild UID (Example: 100200300)" required>
+  <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
+  <input type="text" id="uid" placeholder="Guild UID (Example: 100200300)" required>
 
-    <select id="region">
-      <option>🇮🇳 India</option>
-      <option>🌍 Other</option>
-    </select>
+  <select id="region">
+    <option>🇮🇳 India</option>
+    <option>🌍 Other</option>
+  </select>
 
-    <input type="text" id="telegram" placeholder="Telegram Username (@username)" required>
-    <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
-    <input type="email" id="email" placeholder="Your Email Address" required>
+  <input type="text" id="telegram" placeholder="Telegram Username (@username)" required>
+  <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
+  <input type="email" id="email" placeholder="Your Email Address" required>
 
-    <button type="submit" id="submitBtn">SUBMIT ORDER</button>
-    <small>Please wait 10–30 minutes after submission.</small>
-  </form>
+  <button type="submit" id="submitBtn">SUBMIT ORDER</button>
+  <small>Please wait 10–30 minutes after submission.</small>
+</form>
 
-  <div id="successBox">
-    <h2>✅ ORDER RECEIVED!</h2>
-    <p>Payment details and Guild UID received.<br>Please wait <b>10–30 minutes</b>.<br>Admin will verify your payment.</p>
-    <a href="index.html" style="display:inline-block;margin-top:20px;padding:14px 22px;background:#a855f7;color:#000;font-weight:800;border-radius:10px;text-decoration:none;">⬅ BACK TO HOME</a><br><br>
-    <a href="https://t.me/Gameralsor" style="color:#a855f7;text-decoration:none;">👉 Telegram Support</a>
-  </div>
+<div id="successBox">
+  <h2>✅ ORDER RECEIVED!</h2>
+  <p>Payment details and Guild UID received.<br>Please wait <b>10–30 minutes</b>.<br>Admin will verify your payment.</p>
+  <a href="index.html">⬅ BACK TO HOME</a><br><br>
+  <a href="https://t.me/Gameralsor">👉 Telegram Support</a>
+</div>
+
 </div>
 
 <script>
-// BLOCK DIRECT ACCESS
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = params.get("price");
 
 if(!product || !price){
   alert("❌ Please complete payment first.");
-  window.location.href = "index.html";
+  window.location.href="index.html";
+} else {
+  document.getElementById("product").value = decodeURIComponent(product) + " - ₹" + price;
 }
 
-document.getElementById("product").value = decodeURIComponent(product) + " - ₹" + price;
-
-// CHECK LOGIN
 const user = JSON.parse(localStorage.getItem("loggedUser"));
-if(!user){ alert("❌ Login required!"); window.location.href="login.html"; }
+if(!user){ 
+  alert("❌ Login required!"); 
+  window.location.href="login.html"; 
+}
 
-// HANDLE FORM SUBMISSION
+let submitted = false;
+
 document.getElementById("orderForm").addEventListener("submit", async function(e){
   e.preventDefault();
+  if(submitted) return;
+  submitted = true;
 
   const btn = document.getElementById("submitBtn");
-  if(btn.disabled) return; // prevent double click
   btn.disabled = true;
   btn.innerText = "PLEASE WAIT...";
 
@@ -143,23 +106,20 @@ document.getElementById("orderForm").addEventListener("submit", async function(e
   localStorage.setItem("orders", JSON.stringify(allOrders));
 
   try {
-    // SEND EMAIL TO ADMIN
-    await emailjs.send("service_sd0ge44", "template_eclz1lh", data);
+    // Send email to admin
+    await emailjs.send("service_smicrkx", "template_eclz1lh", data);
 
-    // SEND EMAIL TO CUSTOMER
-    await emailjs.send("service_sd0ge44", "customer_reply", {
-      to_name: user.username,
-      to_email: data.email,
-      product: data.product
-    });
+    // Send email to customer
+    await emailjs.send("service_smicrkx", "Customer_reply", data);
 
-    // SHOW SUCCESS
+    // Show success
     document.getElementById("orderForm").style.display = "none";
     document.getElementById("successBox").style.display = "block";
 
   } catch(err){
     console.error(err);
     alert("❌ Email failed! Try again later.");
+    submitted = false;
     btn.disabled = false;
     btn.innerText = "SUBMIT ORDER";
   }
