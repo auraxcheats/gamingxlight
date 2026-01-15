@@ -4,104 +4,161 @@
 <meta charset="UTF-8">
 <title>Scan & Pay | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body {
-  margin:0; font-family:Arial, sans-serif; background:#0b0b0f; color:#fff; text-align:center; padding:20px;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #1c1030, #0b0b0f 65%);
+  color: #fff;
+  text-align: center;
+  padding: 20px;
 }
 .box {
-  max-width:380px; margin:60px auto; padding:30px; background:#141414; border-radius:16px;
-  box-shadow:0 0 25px rgba(168,85,247,0.5); position:relative;
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  background: #141414;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
+  position: relative;
 }
 .logo {
-  width:120px; margin-bottom:20px;
+  width: 120px;
+  margin-bottom: 20px;
 }
-h2,h1,h3 { margin:6px 0; }
-#price { font-size:28px; font-weight:900; color:#a855f7; margin:10px 0; }
-
 .qr-container {
-  position:relative;
-  display:inline-block;
-  padding:15px;
-  border-radius:20px;
-  box-shadow:0 0 20px #a855f7;
-  animation: glow 2s infinite alternate;
+  position: relative;
+  display: inline-block;
+}
+.qr-container img {
+  width: 220px;
+  border-radius: 14px;
+  box-shadow: 0 0 20px #a855f7;
+  animation: glow 1.5s infinite alternate;
 }
 @keyframes glow {
-  0% { box-shadow:0 0 20px #a855f7; }
-  50% { box-shadow:0 0 35px #facc15; }
-  100% { box-shadow:0 0 20px #a855f7; }
+  0% { box-shadow: 0 0 10px #a855f7; }
+  100% { box-shadow: 0 0 30px #facc15; }
 }
-
+.upi {
+  margin-top: 15px;
+  font-size: 18px;
+  font-weight: bold;
+}
 button {
-  padding:14px 24px; background:#a855f7; border:none; border-radius:12px;
-  font-weight:800; cursor:pointer; margin-top:25px; transition:.3s;
+  margin-top: 25px;
+  padding: 14px 22px;
+  background: #a855f7;
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
 }
-button:hover { opacity:.95; }
+button:hover { opacity: 0.9; }
 
-.popup {
-  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
-  background:rgba(0,0,0,.85); color:#fff; font-size:18px; font-weight:900;
-  display:flex; align-items:center; justify-content:center; z-index:100; text-align:center;
+/* Popup styles */
+#popup {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  flex-direction: column;
 }
-.popup img { max-width:300px; border-radius:16px; }
-a { color:#a855f7; text-decoration:none; display:block; margin-top:15px; }
+#popup img {
+  max-width: 300px;
+  border-radius: 16px;
+}
+#popup .text {
+  color: #00ffcc;
+  font-weight: bold;
+  margin-top: 15px;
+  font-size: 16px;
+}
+#popup .btn-container {
+  margin-top: 20px;
+}
+#popup .continue-btn {
+  padding: 12px 20px;
+  background: #facc15;
+  color: #000;
+  font-weight: 800;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+#popup .continue-btn:hover { opacity: 0.9; }
 </style>
 </head>
 <body>
 
 <div class="box">
-  <img src="logo.png" class="logo" alt="GAMING X LIGHT">
+  <!-- Logo -->
+  <img src="logo.png" class="logo" alt="Gaming X Light Logo">
 
-  <h3 id="username">Hello, Guest</h3>
+  <!-- Product Info -->
   <h2 id="pname">Loading...</h2>
-  <h1 id="price"></h1>
+  <h3 id="price"></h3>
 
+  <!-- QR Code -->
   <div class="qr-container">
-    <img src="qr.png" width="220" alt="Scan QR to Pay">
+    <img src="qr.png" alt="Scan QR to Pay">
   </div>
 
-  <p><b>UPI ID:</b> sahimam@ptyes</p>
+  <!-- UPI -->
+  <p class="upi" id="upiId">sahimam@ptyes</p>
 
+  <!-- Button -->
   <button id="paidBtn">I HAVE PAID</button>
-  <a href="index.html">Back to Home</a>
+</div>
 
-  <!-- POPUP IMAGE -->
-  <div class="popup" id="popupMsg">
-    <img src="warning.png" alt="Make sure to do this setting in Guild.
-And accept bot join request in guild .">
+<!-- Popup -->
+<div id="popup">
+  <img src="warning.png" alt="Important Instructions">
+  <div class="text">
+    ⚠ Make sure to do this setting in Guild.<br>
+    ✅ Accept bot join request in guild.
+  </div>
+  <div class="btn-container">
+    <button class="continue-btn" id="continueBtn">CONTINUE</button>
   </div>
 </div>
 
 <script>
+// GET PRODUCT & PRICE
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
-const price = parseFloat(params.get("price"));
-
-const user = JSON.parse(localStorage.getItem("loggedUser"));
-if(!user){
-  alert("❌ You must login first!");
-  window.location.href = "login.html";
-}else{
-  document.getElementById("username").innerText = "Hello, " + user.username;
-}
+const price = parseFloat(params.get("price") || 0);
 
 if(!product || !price){
   document.body.innerHTML = "<h2>Invalid Access</h2><a href='index.html'>Go Home</a>";
-}else{
+} else {
   document.getElementById("pname").innerText = decodeURIComponent(product);
   document.getElementById("price").innerText = "₹" + price.toFixed(2);
 }
 
-// Exact amount check
+// USER CHECK
+const user = JSON.parse(localStorage.getItem("loggedUser"));
+if(!user){
+  alert("❌ You must login first!");
+  window.location.href="login.html";
+} else {
+  document.getElementById("pname").innerText += " - " + user.username;
+}
+
+// I HAVE PAID BUTTON
 document.getElementById("paidBtn").addEventListener("click", () => {
-  let paidAmount = prompt(`Enter the amount you paid (₹${price.toFixed(2)}):`);
-  if(parseFloat(paidAmount) === price){
-    window.location.href = `pay.html?product=${encodeURIComponent(product)}&price=${price}`;
-  } else {
-    const popup = document.getElementById("popupMsg");
-    popup.style.display = "flex";
-    setTimeout(() => popup.style.display = "none", 4000);
-  }
+  const popup = document.getElementById("popup");
+  popup.style.display = "flex";
+});
+
+// CONTINUE BUTTON
+document.getElementById("continueBtn").addEventListener("click", () => {
+  window.location.href = `pay.html?product=${encodeURIComponent(product)}&price=${price}`;
 });
 </script>
 
