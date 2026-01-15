@@ -8,129 +8,86 @@
 body{margin:0;font-family:Arial;background:#0b0b0f;color:#fff;padding:20px}
 .container{max-width:1200px;margin:auto;background:#141414;padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,.1)}
 h2{text-align:center;margin-bottom:20px;color:#a855f7}
-table{width:100%;border-collapse:collapse;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px}
 th,td{border:1px solid rgba(255,255,255,.15);padding:8px;text-align:center}
 th{background:#1f1f1f}
 button{padding:6px 10px;border:none;border-radius:6px;font-weight:700;cursor:pointer}
 .deleteBtn{background:#ff4d4d;color:#000}
-.editBtn{background:#facc15;color:#000;margin-right:5px}
+.editBtn{background:#facc15;color:#000;margin-left:5px}
 .exportBtn{background:#a855f7;color:#000;margin-top:15px}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
 a{color:#a855f7;text-decoration:none;font-weight:700;margin-left:10px}
+input,select{padding:6px;border-radius:6px;border:none;margin:4px 2px}
 </style>
 </head>
 <body>
-
 <div class="container">
-  <div class="topbar">
-    <h2>🛡 Admin Dashboard</h2>
-    <div>
-      <a href="index.html">⬅ Home</a>
-      <a href="#" onclick="logout()">Logout</a>
-    </div>
-  </div>
-
-  <h3>📦 Products</h3>
-  <table id="productsTable"></table>
-  <button class="exportBtn" id="exportProductsBtn">⬇ Export Products CSV</button>
-  <button class="exportBtn" onclick="addProduct()">➕ Add New Product</button>
-
-  <h3 style="margin-top:30px">💳 Payment Settings</h3>
-  <input type="text" id="upi" placeholder="UPI ID" style="padding:8px;margin-bottom:10px;width:250px">
-  <input type="file" id="qrFile"><button onclick="updateQR()">Update QR</button>
-  <p id="qrPreview"></p>
-
-  <h3 style="margin-top:30px">🌐 Social Links</h3>
-  <input type="text" id="yt" placeholder="YouTube URL" style="padding:8px;margin-bottom:10px;width:250px">
-  <input type="text" id="proof" placeholder="Proof Channel URL" style="padding:8px;margin-bottom:10px;width:250px">
-  <input type="text" id="support" placeholder="Admin Support URL" style="padding:8px;margin-bottom:10px;width:250px">
-  <button onclick="saveSettings()">Save Settings</button>
+<div class="topbar">
+<h2>🛡 Admin Panel</h2>
+<div><a href="index.html">⬅ Home</a> | <a href="#" onclick="logout()">Logout</a></div>
 </div>
 
+<h3>📦 Products</h3>
+<table id="productsTable"></table>
+<button class="exportBtn" id="exportProductsBtn">⬇ Export Products CSV</button>
+<br>
+<h3>👥 Orders</h3>
+<table id="ordersTable"></table>
+<button class="exportBtn" id="exportOrdersBtn">⬇ Export Orders CSV</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* =============================
-   🔐 ADMIN PASSWORD
-============================= */
-const ADMIN_PASSWORD = "gaming_x_light";
-if(sessionStorage.getItem("isAdmin")!=="true"){
-  const pass = prompt("🔐 Enter Admin Password:");
-  if(pass!==ADMIN_PASSWORD){ alert("❌ Access Denied!"); window.location.href="index.html"; }
-  else sessionStorage.setItem("isAdmin","true");
-}
-function logout(){ sessionStorage.removeItem("isAdmin"); window.location.href="index.html"; }
+const SUPABASE_URL="https://dsrevynaanjmepnufzqi.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzcmV2eW5hYW5qbWVwbnVmenFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODc1NTQsImV4cCI6MjA4NDA2MzU1NH0.jSw2LRo7bTjA2uXR89Zn6AJMBARCIz-Vu722Jm9NSmM";
+const supabase=Supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-/* =============================
-   🛒 PRODUCTS MANAGEMENT
-============================= */
-let PRODUCTS = JSON.parse(localStorage.getItem("PRODUCTS")||"[]");
-const productsTable = document.getElementById("productsTable");
+const ADMIN_PASSWORD="gaming_x_light";
+let isAdmin=sessionStorage.getItem("isAdmin");
+if(!isAdmin){ const pass=prompt("Enter Admin Password"); if(pass!==ADMIN_PASSWORD){alert("❌ Access Denied!");window.location.href="index.html"}else{sessionStorage.setItem("isAdmin","true")}}
+function logout(){sessionStorage.removeItem("isAdmin");window.location.href="index.html"}
 
-function renderProducts(){
-  productsTable.innerHTML = `<tr>
-    <th>#</th><th>Name</th><th>Badge</th><th>Price</th><th>Features</th><th>Action</th>
-  </tr>`;
-  PRODUCTS.forEach((p,i)=>{
-    const row = productsTable.insertRow();
-    row.insertCell().innerText=i+1;
-    row.insertCell().innerText=p.name;
-    row.insertCell().innerText=p.badge;
-    row.insertCell().innerText=p.price;
-    row.insertCell().innerText=p.features.join(", ");
-    const cell=row.insertCell();
-    const edit=document.createElement("button");
-    edit.className="editBtn"; edit.innerText="Edit";
-    edit.onclick=()=>editProduct(i);
-    const del=document.createElement("button");
-    del.className="deleteBtn"; del.innerText="Delete";
-    del.onclick=()=>{if(confirm("Delete this product?")){PRODUCTS.splice(i,1);saveProducts();}};
-    cell.appendChild(edit);cell.appendChild(del);
+// Load Products
+async function loadProducts(){
+  const {data,error}=await supabase.from('products').select('*').order('id',{ascending:true});
+  const table=document.getElementById("productsTable");
+  table.innerHTML="<tr><th>#</th><th>Name</th><th>Price</th><th>Badge</th><th>Features</th><th>Action</th></tr>";
+  if(error){console.error(error);return;}
+  data.forEach((p,i)=>{
+    const row=table.insertRow();
+    row.insertCell(0).innerText=i+1;
+    row.insertCell(1).innerText=p.name;
+    row.insertCell(2).innerText=p.price;
+    row.insertCell(3).innerText=p.badge;
+    row.insertCell(4).innerText=p.features;
+    const cell=row.insertCell(5);
+    const delBtn=document.createElement("button");
+    delBtn.innerText="Delete"; delBtn.className="deleteBtn";
+    delBtn.onclick=async()=>{
+      if(confirm("Delete this product?")){await supabase.from('products').delete().eq('id',p.id);loadProducts();}
+    }
+    cell.appendChild(delBtn);
   });
 }
-function saveProducts(){ localStorage.setItem("PRODUCTS",JSON.stringify(PRODUCTS)); renderProducts(); }
-function addProduct(){
-  const name=prompt("Product Name");if(!name) return;
-  const badge=prompt("Badge"); const price=prompt("Price");
-  const features=prompt("Features (comma separated)").split(",");
-  PRODUCTS.push({name,badge,price,features}); saveProducts();
-}
-function editProduct(i){
-  const p=PRODUCTS[i];
-  const name=prompt("Name",p.name); if(name)p.name=name;
-  const badge=prompt("Badge",p.badge); if(badge)p.badge=badge;
-  const price=prompt("Price",p.price); if(price)p.price=price;
-  const features=prompt("Features (comma separated)",p.features.join(","));
-  if(features)p.features=features.split(",");
-  saveProducts();
-}
+loadProducts();
 
-/* =============================
-   💳 QR & UPI SETTINGS
-============================= */
-let SETTINGS = JSON.parse(localStorage.getItem("SETTINGS")||"{}");
-document.getElementById("upi").value=SETTINGS.upi||"";
-document.getElementById("yt").value=SETTINGS.yt||"";
-document.getElementById("proof").value=SETTINGS.proof||"";
-document.getElementById("support").value=SETTINGS.support||"";
-if(SETTINGS.qr) document.getElementById("qrPreview").innerHTML=`<img src="${SETTINGS.qr}" width="120">`;
-
-function updateQR(){
-  const file=document.getElementById("qrFile").files[0];
-  if(!file) return alert("Select QR file!");
-  const reader=new FileReader();
-  reader.onload=function(e){SETTINGS.qr=e.target.result; saveSettings();};
-  reader.readAsDataURL(file);
+// Load Orders from localStorage
+let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+const ordersTable=document.getElementById("ordersTable");
+function renderOrders(){
+  ordersTable.innerHTML="<tr><th>#</th><th>Product</th><th>Price</th><th>UTR</th><th>Guild UID</th><th>Region</th><th>Telegram</th><th>WhatsApp</th></tr>";
+  orders.forEach((o,i)=>{
+    const row=ordersTable.insertRow();
+    row.insertCell(0).innerText=i+1;
+    row.insertCell(1).innerText=o.product;
+    row.insertCell(2).innerText=o.price;
+    row.insertCell(3).innerText=o.utr;
+    row.insertCell(4).innerText=o.uid;
+    row.insertCell(5).innerText=o.region;
+    row.insertCell(6).innerText=o.telegram;
+    row.insertCell(7).innerText=o.whatsapp;
+  });
 }
-function saveSettings(){
-  SETTINGS.upi=document.getElementById("upi").value;
-  SETTINGS.yt=document.getElementById("yt").value;
-  SETTINGS.proof=document.getElementById("proof").value;
-  SETTINGS.support=document.getElementById("support").value;
-  localStorage.setItem("SETTINGS",JSON.stringify(SETTINGS));
-  alert("✅ Settings saved!");
-}
-
-renderProducts();
+renderOrders();
 </script>
-
-</body>
-</html>
+</body
