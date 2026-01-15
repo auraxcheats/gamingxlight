@@ -1,177 +1,146 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Panel | GAMING X LIGHT</title>
+<title>Admin Panel | Gaming X Light</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#0b0b0f;
-  color:#fff;
-  padding:20px;
-}
-.container{
-  max-width:1200px;
-  margin:auto;
-  background:#141414;
-  padding:20px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.1);
-}
+body{margin:0;font-family:Arial,sans-serif;background:#0b0b0f;color:#fff;padding:20px}
+.container{max-width:1200px;margin:auto;background:#141414;padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,.1)}
 h2{text-align:center;margin-bottom:20px;color:#a855f7}
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:14px;
-}
-th,td{
-  border:1px solid rgba(255,255,255,.15);
-  padding:8px;
-  text-align:center;
-}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border:1px solid rgba(255,255,255,.15);padding:8px;text-align:center}
 th{background:#1f1f1f}
-button{
-  padding:6px 10px;
-  border:none;
-  border-radius:6px;
-  font-weight:700;
-  cursor:pointer;
-}
+button{padding:6px 10px;border:none;border-radius:6px;font-weight:700;cursor:pointer}
 .deleteBtn{background:#ff4d4d;color:#000}
-.exportBtn{
-  background:#a855f7;
-  color:#000;
-  margin-top:15px;
-}
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:15px;
-}
+.editBtn{background:#facc15;color:#000}
+.addBtn{background:#00ffcc;color:#000;margin-bottom:10px}
+.exportBtn{background:#a855f7;color:#000;margin-top:15px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
 a{color:#a855f7;text-decoration:none;font-weight:700;margin-left:10px}
+input,select{background:#0f0f0f;color:#fff;border:none;border-radius:6px;padding:6px;width:100%;margin:2px 0}
 </style>
 </head>
-<body>
-
-<div class="container">
+<body><div class="container">
   <div class="topbar">
-    <h2>🛡 Admin Orders Panel</h2>
+    <h2><img id="logo" src="" alt="Logo" style="height:30px;vertical-align:middle;margin-right:8px">Gaming X Light Admin</h2>
     <div>
       <a href="index.html">⬅ Home</a>
       <a href="#" onclick="logout()">Logout</a>
     </div>
-  </div>
-
-  <h3>📦 Orders</h3>
+  </div>  <h3>🛠 Social Links & Logo</h3>
+  <div style="margin-bottom:20px">
+    <label>Logo URL:</label><input type="text" id="logoInput">
+    <label>Telegram:</label><input type="text" id="telegramInput">
+    <label>YouTube:</label><input type="text" id="youtubeInput">
+    <label>Proof:</label><input type="text" id="proofInput">
+    <label>Admin Support:</label><input type="text" id="adminSupportInput">
+    <button class="addBtn" onclick="saveLinks()">Save Social Links & Logo</button>
+  </div>  <h3>📦 Products</h3>
+  <button class="addBtn" onclick="addProduct()">+ Add New Product</button>
+  <table id="productsTable"></table>  <h3 style="margin-top:30px">📦 Orders</h3>
   <table id="ordersTable"></table>
   <button class="exportBtn" id="exportOrdersBtn">⬇ Export Orders CSV</button>
-</div>
-
-<script>
-/* =============================
-   🔐 ADMIN PASSWORD
-============================= */
+</div><script>
+/* ================== ADMIN PASSWORD ==================*/
 const ADMIN_PASSWORD = "gaming_x_light";
-let isAdmin = sessionStorage.getItem("isAdmin");
-if(!isAdmin){
+if(!sessionStorage.getItem("isAdmin")){
   const pass = prompt("🔐 Enter Admin Password:");
-  if(pass !== ADMIN_PASSWORD){
-    alert("❌ Access Denied!");
-    window.location.href = "index.html";
-  }else{
-    sessionStorage.setItem("isAdmin","true");
-  }
+  if(pass!==ADMIN_PASSWORD){alert("❌ Access Denied!");window.location.href="index.html"}
+  else sessionStorage.setItem("isAdmin","true");
 }
+function logout(){sessionStorage.removeItem("isAdmin");window.location.href="index.html"}
 
-function logout(){
-  sessionStorage.removeItem("isAdmin");
-  window.location.href = "index.html";
+/* ================== LOAD SOCIAL LINKS & LOGO ==================*/
+let social = JSON.parse(localStorage.getItem("socialLinks")||"{}");
+const logoEl = document.getElementById("logo");
+function loadLinks(){
+  document.getElementById("logoInput").value = social.logo||"";
+  logoEl.src = social.logo||"";
+  document.getElementById("telegramInput").value = social.telegram||"";
+  document.getElementById("youtubeInput").value = social.youtube||"";
+  document.getElementById("proofInput").value = social.proof||"";
+  document.getElementById("adminSupportInput").value = social.admin||"";
 }
+function saveLinks(){
+  social = {
+    logo: document.getElementById("logoInput").value,
+    telegram: document.getElementById("telegramInput").value,
+    youtube: document.getElementById("youtubeInput").value,
+    proof: document.getElementById("proofInput").value,
+    admin: document.getElementById("adminSupportInput").value
+  };
+  localStorage.setItem("socialLinks",JSON.stringify(social));
+  alert("✅ Saved!");
+  logoEl.src = social.logo||"";
+}
+loadLinks();
 
-/* =============================
-   📦 LOAD ORDERS FROM LOCALSTORAGE
-============================= */
-let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-const ordersTable = document.getElementById("ordersTable");
-
-function renderOrders(){
-  ordersTable.innerHTML = `
-    <tr>
-      <th>#</th>
-      <th>Username</th>
-      <th>Email</th>
-      <th>Product</th>
-      <th>Price</th>
-      <th>UTR</th>
-      <th>Guild UID</th>
-      <th>Region</th>
-      <th>Telegram</th>
-      <th>WhatsApp</th>
-      <th>Action</th>
-    </tr>
-  `;
-
-  if(orders.length === 0){
-    const row = ordersTable.insertRow();
+/* ================== PRODUCTS ==================*/
+let products = JSON.parse(localStorage.getItem("products")||"[]");
+const productsTable = document.getElementById("productsTable");
+function renderProducts(){
+  productsTable.innerHTML = `<tr><th>#</th><th>Name</th><th>Price</th><th>Badge</th><th>Description</th><th>Validity Days</th><th>Actions</th></tr>`;
+  products.forEach((p,i)=>{
+    const row = productsTable.insertRow();
+    row.insertCell().innerText = i+1;
+    row.insertCell().innerHTML = `<input value='${p.name}'>`;
+    row.insertCell().innerHTML = `<input value='${p.price}'>`;
+    row.insertCell().innerHTML = `<input value='${p.badge||""}'>`;
+    row.insertCell().innerHTML = `<input value='${p.description||""}'>`;
+    row.insertCell().innerHTML = `<input value='${p.days||""}'>`;
     const cell = row.insertCell();
-    cell.colSpan = 11;
-    cell.innerText = "No orders found.";
-    cell.style.opacity = ".6";
-    return;
-  }
+    const saveBtn = document.createElement("button"); saveBtn.innerText="Save"; saveBtn.className="editBtn";
+    saveBtn.onclick=()=>{
+      products[i].name = row.cells[1].children[0].value;
+      products[i].price = row.cells[2].children[0].value;
+      products[i].badge = row.cells[3].children[0].value;
+      products[i].description = row.cells[4].children[0].value;
+      products[i].days = row.cells[5].children[0].value;
+      localStorage.setItem("products",JSON.stringify(products));
+      alert("✅ Product saved!");
+      renderProducts();
+    };
+    const delBtn = document.createElement("button"); delBtn.innerText="Delete"; delBtn.className="deleteBtn";
+    delBtn.onclick=()=>{if(confirm("Delete this product?")){products.splice(i,1);saveProducts();}};
+    cell.appendChild(saveBtn); cell.appendChild(delBtn);
+  });
+}
+function saveProducts(){localStorage.setItem("products",JSON.stringify(products)); renderProducts();}
+function addProduct(){products.push({name:"New Product",price:"0",badge:"",description:"",days:""}); saveProducts();}
+renderProducts();
 
+/* ================== ORDERS ==================*/
+let orders = JSON.parse(localStorage.getItem("orders")||"[]");
+const ordersTable = document.getElementById("ordersTable");
+function renderOrders(){
+  ordersTable.innerHTML = `<tr><th>#</th><th>Username</th><th>Email</th><th>Product</th><th>Price</th><th>UTR</th><th>Guild UID</th><th>Region</th><th>Telegram</th><th>WhatsApp</th><th>Action</th></tr>`;
   orders.forEach((o,i)=>{
     const row = ordersTable.insertRow();
-    row.insertCell().innerText = i+1;
-    row.insertCell().innerText = o.username || "Guest";
-    row.insertCell().innerText = o.email || "N/A";
-    row.insertCell().innerText = o.product;
-    row.insertCell().innerText = o.price;
-    row.insertCell().innerText = o.utr;
-    row.insertCell().innerText = o.uid;
-    row.insertCell().innerText = o.region;
-    row.insertCell().innerText = o.telegram;
-    row.insertCell().innerText = o.whatsapp;
-
+    row.insertCell().innerText=i+1;
+    row.insertCell().innerText=o.username||"Guest";
+    row.insertCell().innerText=o.email||"N/A";
+    row.insertCell().innerText=o.product;
+    row.insertCell().innerText=o.price;
+    row.insertCell().innerText=o.utr;
+    row.insertCell().innerText=o.uid;
+    row.insertCell().innerText=o.region;
+    row.insertCell().innerText=o.telegram;
+    row.insertCell().innerText=o.whatsapp;
     const cell = row.insertCell();
-    const delBtn = document.createElement("button");
-    delBtn.innerText="Delete";
-    delBtn.className="deleteBtn";
-    delBtn.onclick=()=>{
-      if(confirm("Delete this order?")){
-        orders.splice(i,1);
-        saveOrders();
-      }
-    };
+    const delBtn = document.createElement("button"); delBtn.innerText="Delete"; delBtn.className="deleteBtn";
+    delBtn.onclick=()=>{if(confirm("Delete this order?")){orders.splice(i,1);saveOrders();}};
     cell.appendChild(delBtn);
   });
 }
+function saveOrders(){localStorage.setItem("orders",JSON.stringify(orders)); renderOrders();}
+renderOrders();
 
-function saveOrders(){
-  localStorage.setItem("orders", JSON.stringify(orders));
-  renderOrders();
-}
-
-/* =============================
-   📤 EXPORT ORDERS CSV
-============================= */
+/* ================== EXPORT ORDERS CSV ==================*/
 document.getElementById("exportOrdersBtn").addEventListener("click",()=>{
   let csv = "Username,Email,Product,Price,UTR,Guild UID,Region,Telegram,WhatsApp\n";
-  orders.forEach(o=>{
-    csv+=`${o.username || "Guest"},${o.email || "N/A"},${o.product},${o.price},${o.utr},${o.uid},${o.region},${o.telegram},${o.whatsapp}\n`;
-  });
-  const blob = new Blob([csv], {type:"text/csv"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "orders.csv";
-  a.click();
+  orders.forEach(o=>{csv+=`${o.username},${o.email},${o.product},${o.price},${o.utr},${o.uid},${o.region},${o.telegram},${o.whatsapp}\n`;});
+  const blob = new Blob([csv],{type:"text/csv"});
+  const a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="orders.csv"; a.click();
 });
-
-renderOrders();
-</script>
-
-</body>
+</script></body>
 </html>
