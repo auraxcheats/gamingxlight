@@ -2,150 +2,186 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Payment Details | GAMING X LIGHT</title>
+<title>Secure Payment | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-(function(){ emailjs.init("lDpUNN_uwsW-vT8_2"); })();
-</script>
-
 <style>
-body {
+*{box-sizing:border-box}
+body{
   margin:0;
-  font-family:Arial;
-  background:#0b0b0f;
+  min-height:100vh;
+  background: radial-gradient(circle at top, #2a0845, #0b0b0f 60%);
+  font-family: Arial, Helvetica, sans-serif;
   color:#fff;
   display:flex;
-  justify-content:center;
   align-items:center;
-  min-height:100vh;
+  justify-content:center;
+  padding:20px;
 }
-.container {
+
+.card{
   width:100%;
   max-width:420px;
-  background:#141414;
-  padding:25px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.1);
+  background: rgba(20,20,20,.75);
+  backdrop-filter: blur(14px);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:28px;
+  box-shadow: 0 0 30px rgba(168,85,247,.45),
+              inset 0 0 20px rgba(255,255,255,.03);
   text-align:center;
 }
-h2 {margin-bottom:20px;}
-input,select,button {
-  width:100%;
-  padding:14px;
+
+.brand{
+  font-weight:900;
+  letter-spacing:1px;
+  color:#c084fc;
+  margin-bottom:6px;
+}
+
+h2{margin:4px 0 2px;font-size:22px}
+.price{
+  font-size:30px;
+  font-weight:900;
+  color:#00ffd5;
   margin-bottom:14px;
-  border-radius:10px;
+}
+
+.qr-box{
+  position: relative;
+  display:inline-block;
+  background:#0f0f15;
+  border-radius:16px;
+  padding:18px;
+  margin:18px 0;
+  box-shadow: 0 0 20px rgba(0,0,0,.6);
+  animation: glow 2s infinite alternate;
+}
+
+.qr-box img{
+  width:220px;
+  border-radius:14px;
+  display:block;
+  margin:0 auto;
+}
+
+@keyframes glow {
+  0%{ box-shadow: 0 0 20px rgba(168,85,247,.5); }
+  50%{ box-shadow: 0 0 30px rgba(168,85,247,.9); }
+  100%{ box-shadow: 0 0 25px rgba(168,85,247,.7); }
+}
+
+.upi{
+  margin-top:12px;
+  font-size:16px;
+  font-weight:700;
+  color:#c084fc;
+}
+
+.btn{
+  width:100%;
+  padding:16px;
+  margin-top:16px;
+  background:linear-gradient(135deg,#a855f7,#7c3aed);
   border:none;
-  font-size:14px;
-  outline:none;
-}
-input,select {background:#0f0f0f;color:#fff;}
-button {
-  background:#a855f7;
-  color:#000;
-  font-weight:800;
+  border-radius:14px;
+  font-weight:900;
+  font-size:15px;
   cursor:pointer;
+  color:#000;
+  transition:.25s;
 }
-button:disabled {opacity:.5;cursor:not-allowed;}
-small {opacity:.6;}
+.btn:hover{transform:translateY(-1px);opacity:.95}
+
+.back{
+  display:block;
+  margin-top:16px;
+  font-size:13px;
+  color:#a855f7;
+  text-decoration:none
+}
+
+/* POPUP */
+.popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+.popup-card{
+  max-width:340px;
+  background:#141414;
+  padding:22px;
+  border-radius:18px;
+  box-shadow:0 0 35px rgba(168,85,247,.7);
+  text-align:center;
+}
+.popup-card img{
+  width:100%;
+  border-radius:14px
+}
+.popup-card p{
+  margin:12px 0 6px;
+  font-size:14px;
+  font-weight:700;
+  color:#fff;
+}
+.popup-card .btn{
+  margin-top:10px;
+}
 </style>
 </head>
-
 <body>
 
-<div class="container">
-  <form id="orderForm">
-    <h2>Submit Payment Details</h2>
+<div class="card">
+  <div class="brand">GAMING X LIGHT</div>
 
-    <input type="text" id="product" readonly placeholder="Product Name">
+  <h2 id="pname">Loading...</h2>
+  <div class="price" id="price"></div>
 
-    <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
-    <input type="text" id="uid" placeholder="Guild UID (Example: 100200300)" required>
+  <div class="qr-box">
+    <img src="qr.png" alt="Scan to Pay">
+    <div class="upi">UPI ID: sahimam@ptyes</div>
+  </div>
 
-    <select id="region">
-      <option value="India">🇮🇳 India</option>
-      <option value="Other">🌍 Other</option>
-    </select>
+  <button class="btn" onclick="openPopup()">I HAVE PAID</button>
+  <a href="index.html" class="back">← Back to Home</a>
+</div>
 
-    <input type="text" id="telegram" placeholder="Telegram Username (@username)" required>
-    <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
-    <input type="email" id="email" placeholder="Your Email Address" required>
-
-    <button type="submit" id="submitBtn">SUBMIT ORDER</button>
-    <small>Please wait 10–30 minutes after submission.</small>
-  </form>
-
-  <div id="successBox" style="display:none;">
-    <h2 style="color:#00ffcc;">✅ ORDER RECEIVED!</h2>
-    <p>Payment details & Guild UID received.<br>Please wait <b>10–30 minutes</b>.<br>Admin will verify your payment.</p>
-    <a href="index.html" style="display:inline-block;margin-top:20px;padding:14px 22px;background:#a855f7;color:#000;font-weight:800;border-radius:10px;text-decoration:none;">
-      ⬅ BACK TO HOME
-    </a><br><br>
-    <a href="https://t.me/Gameralsor" style="color:#a855f7;text-decoration:none;">👉 Telegram Support</a>
+<!-- WARNING POPUP -->
+<div class="popup" id="popup">
+  <div class="popup-card">
+    <img src="warning.png" alt="Warning">
+    <p>
+      ⚠ Make sure to do this setting <b>in Guild</b>.<br>
+      And accept bot join request in guild .
+    </p>
+    <button class="btn" onclick="goPay()">CONTINUE</button>
   </div>
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
+const params = new URLSearchParams(location.search);
 const product = params.get("product");
 const price = params.get("price");
 
-// Block direct access
 if(!product || !price){
-  alert("❌ Invalid access!");
-  window.location.href = "index.html";
+  document.body.innerHTML =
+    "<h2>Invalid Access</h2><a href='index.html'>Go Home</a>";
+}else{
+  document.getElementById("pname").innerText = decodeURIComponent(product);
+  document.getElementById("price").innerText = "₹" + price;
 }
 
-document.getElementById("product").value = decodeURIComponent(product) + " - ₹" + price;
-
-// Handle form submission
-document.getElementById("orderForm").addEventListener("submit", async function(e){
-  e.preventDefault();
-
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.innerText = "PLEASE WAIT...";
-
-  const data = {
-    product: decodeURIComponent(product),
-    price: price,
-    utr: document.getElementById("utr").value,
-    uid: document.getElementById("uid").value,
-    region: document.getElementById("region").value,
-    telegram: document.getElementById("telegram").value,
-    whatsapp: document.getElementById("whatsapp").value,
-    email: document.getElementById("email").value
-  };
-
-  // --- Save to Supabase ---
-  try {
-    const response = await fetch('https://dsrevynaanjmepnufzqi.supabase.co/rest/v1/orders', {
-      method: 'POST',
-      headers: {
-        'Content-Type':'application/json',
-        'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzcmV2eW5hYW5qbWVwbnVmenFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODc1NTQsImV4cCI6MjA4NDA2MzU1NH0.jSw2LRo7bTjA2uXR89Zn6AJMBARCIz-Vu722Jm9NSmM',
-        'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzcmV2eW5hYW5qbWVwbnVmenFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODc1NTQsImV4cCI6MjA4NDA2MzU1NH0.jSw2LRo7bTjA2uXR89Zn6AJMBARCIz-Vu722Jm9NSmM'
-      },
-      body: JSON.stringify(data)
-    });
-    if(!response.ok) throw new Error("Supabase insert failed");
-
-    // Send emails via EmailJS
-    await emailjs.send("service_sd0ge44", "template_eclz1lh", data); // Admin
-    await emailjs.send("service_sd0ge44", "customer_reply", data);   // Customer
-
-    document.getElementById("orderForm").style.display = "none";
-    document.getElementById("successBox").style.display = "block";
-
-  } catch(err){
-    console.error(err);
-    alert("❌ Error! Try again later.");
-    btn.disabled = false;
-    btn.innerText = "SUBMIT ORDER";
-  }
-});
+function openPopup(){
+  document.getElementById("popup").style.display="flex";
+}
+function goPay(){
+  location.href = "pay.html?product="+encodeURIComponent(product)+"&price="+price;
+}
 </script>
 
 </body>
