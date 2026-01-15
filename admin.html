@@ -9,204 +9,159 @@ body{margin:0;font-family:Arial;background:#0b0b0f;color:#fff;padding:20px}
 .container{max-width:1200px;margin:auto;background:#141414;padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,.1)}
 h2{text-align:center;margin-bottom:20px;color:#a855f7}
 h3{margin-top:30px;color:#a855f7}
-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:15px}
+input,textarea,select,button{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:none;outline:none;font-size:14px}
+input,select,textarea{background:#0f0f0f;color:#fff}
+button{cursor:pointer;font-weight:700}
+button.delete{background:#ff4d4d;color:#000}
+button.save{background:#a855f7;color:#000}
+.section{margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.2)}
+.flex{display:flex;gap:10px;flex-wrap:wrap}
+.flex>input,.flex>select{flex:1}
+table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid rgba(255,255,255,.15);padding:8px;text-align:center}
 th{background:#1f1f1f}
-input,textarea,select{width:100%;padding:8px;margin-bottom:8px;border-radius:6px;border:none;background:#0f0f0f;color:#fff}
-button{padding:6px 10px;border:none;border-radius:6px;font-weight:700;cursor:pointer;margin:2px}
-.addBtn{background:#00ffcc;color:#000}
-.deleteBtn{background:#ff4d4d;color:#000}
-.editBtn{background:#facc15;color:#000}
-.exportBtn{background:#a855f7;color:#000;margin-top:5px}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-a{color:#a855f7;text-decoration:none;font-weight:700;margin-left:10px}
-label{font-weight:700;margin-top:5px;display:block}
 </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="topbar">
-    <h2>🛡 Admin Dashboard</h2>
-    <div>
-      <a href="index.html">⬅ Home</a>
-      <a href="#" onclick="logout()">Logout</a>
-    </div>
-  </div>
+<h2>🛡 GAMING X LIGHT Admin Panel</h2>
+<button onclick="logout()">Logout</button>
 
-  <h3>🏷 Logo & Brand</h3>
-  <label>Site Logo URL:</label>
-  <input type="text" id="logoInput" placeholder="Enter logo URL">
-  <label>Site Name:</label>
-  <input type="text" id="brandInput" placeholder="GAMING X LIGHT">
-  <button class="addBtn" onclick="saveBrand()">Save Brand</button>
+<div class="section">
+<h3>🏷 Site Settings</h3>
+<label>Logo URL:</label>
+<input type="text" id="logoInput">
+<label>Store Name:</label>
+<input type="text" id="storeNameInput">
+<label>Tagline:</label>
+<input type="text" id="taglineInput">
+<label>QR Image URL:</label>
+<input type="text" id="qrInput">
+<label>UPI ID:</label>
+<input type="text" id="upiInput">
+<label>YouTube Link:</label>
+<input type="text" id="youtubeInput">
+<label>Proof Link:</label>
+<input type="text" id="proofInput">
+<label>Admin Support Link:</label>
+<input type="text" id="supportInput">
+<button class="save" onclick="saveSiteSettings()">Save Site Settings</button>
+</div>
 
-  <h3>📦 Products</h3>
-  <table id="productsTable"></table>
-  <button class="addBtn" onclick="addProduct()">➕ Add Product</button>
+<div class="section">
+<h3>📦 Products</h3>
+<label>Product Name:</label>
+<input type="text" id="prodName">
+<label>Price:</label>
+<input type="number" id="prodPrice">
+<label>Badge:</label>
+<input type="text" id="prodBadge">
+<label>Features (comma separated):</label>
+<input type="text" id="prodFeatures">
+<button class="save" onclick="addProduct()">Add Product</button>
 
-  <h3>🔗 Official Links</h3>
-  <label>YouTube Link:</label>
-  <input type="text" id="youtubeInput" placeholder="https://youtube.com/...">
-  <label>Proof Channel:</label>
-  <input type="text" id="proofInput" placeholder="https://t.me/...">
-  <label>Admin Support:</label>
-  <input type="text" id="adminInput" placeholder="https://t.me/...">
-  <button class="addBtn" onclick="saveLinks()">Save Links</button>
+<table id="productsTable">
+<tr>
+<th>#</th><th>Name</th><th>Price</th><th>Badge</th><th>Features</th><th>Action</th>
+</tr>
+</table>
+</div>
 
-  <h3>💳 Payment QR & UPI</h3>
-  <label>QR Image URL:</label>
-  <input type="text" id="qrInput" placeholder="Enter QR image URL">
-  <label>UPI ID:</label>
-  <input type="text" id="upiInput" placeholder="example@upi">
-  <button class="addBtn" onclick="saveQR()">Save Payment Info</button>
 </div>
 
 <script>
-/* ==============================
-   ADMIN PASSWORD PROTECTION
-============================== */
+/* ===================== PASSWORD PROTECT ===================== */
 const ADMIN_PASSWORD = "gaming_x_light";
-let isAdmin = sessionStorage.getItem("isAdmin");
-if(!isAdmin){
-  const pass = prompt("Enter Admin Password:");
+if(!sessionStorage.getItem("isAdmin")){
+  const pass = prompt("🔐 Enter Admin Password:");
   if(pass !== ADMIN_PASSWORD){
-    alert("Access Denied!");
-    window.location.href="index.html";
-  }else{
-    sessionStorage.setItem("isAdmin","true");
-  }
+    alert("❌ Access Denied!"); window.location.href="index.html";
+  }else{ sessionStorage.setItem("isAdmin","true"); }
 }
+function logout(){ sessionStorage.removeItem("isAdmin"); location.reload(); }
 
-function logout(){
-  sessionStorage.removeItem("isAdmin");
-  window.location.href="index.html";
-}
+/* ===================== SITE DATA ===================== */
+let siteData = JSON.parse(localStorage.getItem("siteData")||`{
+  "logo":"logo.png","storeName":"GAMING X LIGHT","tagline":"Premium Free Fire Tools & Bots",
+  "qr":{"img":"qr.png","upi":"kumaripalak0@fam"},
+  "socialLinks":{"youtube":"","proof":"","support":""},
+  "products":[]
+}`);
 
-/* ==============================
-   LOAD AND SAVE BRAND
-============================== */
 const logoInput = document.getElementById("logoInput");
-const brandInput = document.getElementById("brandInput");
-
-function saveBrand(){
-  const data = { logo: logoInput.value, name: brandInput.value };
-  localStorage.setItem("siteBrand", JSON.stringify(data));
-  alert("Brand updated!");
-}
-
-function loadBrand(){
-  const data = JSON.parse(localStorage.getItem("siteBrand")||'{"logo":"","name":"GAMING X LIGHT"}');
-  logoInput.value = data.logo;
-  brandInput.value = data.name;
-}
-
-/* ==============================
-   LOAD AND SAVE PRODUCTS
-============================== */
-let products = JSON.parse(localStorage.getItem("products")||'[]');
+const storeNameInput = document.getElementById("storeNameInput");
+const taglineInput = document.getElementById("taglineInput");
+const qrInput = document.getElementById("qrInput");
+const upiInput = document.getElementById("upiInput");
+const youtubeInput = document.getElementById("youtubeInput");
+const proofInput = document.getElementById("proofInput");
+const supportInput = document.getElementById("supportInput");
 const productsTable = document.getElementById("productsTable");
+
+function loadSiteSettings(){
+  logoInput.value = siteData.logo;
+  storeNameInput.value = siteData.storeName;
+  taglineInput.value = siteData.tagline;
+  qrInput.value = siteData.qr.img;
+  upiInput.value = siteData.qr.upi;
+  youtubeInput.value = siteData.socialLinks.youtube;
+  proofInput.value = siteData.socialLinks.proof;
+  supportInput.value = siteData.socialLinks.support;
+}
+function saveSiteSettings(){
+  siteData.logo = logoInput.value;
+  siteData.storeName = storeNameInput.value;
+  siteData.tagline = taglineInput.value;
+  siteData.qr.img = qrInput.value;
+  siteData.qr.upi = upiInput.value;
+  siteData.socialLinks.youtube = youtubeInput.value;
+  siteData.socialLinks.proof = proofInput.value;
+  siteData.socialLinks.support = supportInput.value;
+  localStorage.setItem("siteData",JSON.stringify(siteData));
+  alert("✅ Site settings saved!");
+}
+
+/* ===================== PRODUCTS ===================== */
+const prodName = document.getElementById("prodName");
+const prodPrice = document.getElementById("prodPrice");
+const prodBadge = document.getElementById("prodBadge");
+const prodFeatures = document.getElementById("prodFeatures");
 
 function renderProducts(){
   productsTable.innerHTML = `<tr>
-    <th>#</th><th>Name</th><th>Badge</th><th>Price</th><th>Features (comma separated)</th><th>Action</th>
-  </tr>`;
-  products.forEach((p,i)=>{
+<th>#</th><th>Name</th><th>Price</th><th>Badge</th><th>Features</th><th>Action</th>
+</tr>`;
+  siteData.products.forEach((p,i)=>{
     const row = productsTable.insertRow();
-    row.insertCell().innerText = i+1;
-    row.insertCell().innerText = p.name;
-    row.insertCell().innerText = p.badge;
-    row.insertCell().innerText = p.price;
-    row.insertCell().innerText = p.features.join(", ");
-    const cell = row.insertCell();
-    const editBtn = document.createElement("button");
-    editBtn.innerText="Edit";
-    editBtn.className="editBtn";
-    editBtn.onclick = ()=>{
-      const name = prompt("Product Name:", p.name);
-      const badge = prompt("Badge:", p.badge);
-      const price = prompt("Price:", p.price);
-      const features = prompt("Features (comma separated):", p.features.join(","));
-      if(name && badge && price){
-        products[i] = {name,badge,price,features:features.split(",")};
-        saveProducts();
-      }
-    };
+    row.insertCell(0).innerText=i+1;
+    row.insertCell(1).innerText=p.name;
+    row.insertCell(2).innerText=p.price;
+    row.insertCell(3).innerText=p.badge;
+    row.insertCell(4).innerText=p.features.join(", ");
+    const actionCell = row.insertCell(5);
     const delBtn = document.createElement("button");
-    delBtn.innerText="Delete";
-    delBtn.className="deleteBtn";
-    delBtn.onclick = ()=>{
-      if(confirm("Delete this product?")){
-        products.splice(i,1);
-        saveProducts();
-      }
-    };
-    cell.appendChild(editBtn);
-    cell.appendChild(delBtn);
+    delBtn.innerText="Delete"; delBtn.className="delete";
+    delBtn.onclick=()=>{ if(confirm("Delete this product?")){ siteData.products.splice(i,1); saveProducts(); } };
+    actionCell.appendChild(delBtn);
   });
 }
 
-function addProduct(){
-  const name = prompt("Product Name:");
-  const badge = prompt("Badge:");
-  const price = prompt("Price:");
-  const features = prompt("Features (comma separated):");
-  if(name && badge && price){
-    products.push({name,badge,price,features:features.split(",")});
-    saveProducts();
-  }
-}
-
 function saveProducts(){
-  localStorage.setItem("products", JSON.stringify(products));
+  localStorage.setItem("siteData",JSON.stringify(siteData));
   renderProducts();
 }
 
-/* ==============================
-   OFFICIAL LINKS
-============================== */
-const youtubeInput = document.getElementById("youtubeInput");
-const proofInput = document.getElementById("proofInput");
-const adminInput = document.getElementById("adminInput");
-
-function saveLinks(){
-  const links = { youtube: youtubeInput.value, proof: proofInput.value, admin: adminInput.value };
-  localStorage.setItem("officialLinks", JSON.stringify(links));
-  alert("Links updated!");
+function addProduct(){
+  const f = prodFeatures.value.split(",").map(s=>s.trim());
+  siteData.products.push({name:prodName.value,price:prodPrice.value,badge:prodBadge.value,features:f});
+  saveProducts();
+  prodName.value=""; prodPrice.value=""; prodBadge.value=""; prodFeatures.value="";
 }
 
-function loadLinks(){
-  const links = JSON.parse(localStorage.getItem("officialLinks")||'{"youtube":"","proof":"","admin":""}');
-  youtubeInput.value = links.youtube;
-  proofInput.value = links.proof;
-  adminInput.value = links.admin;
-}
-
-/* ==============================
-   QR & UPI
-============================== */
-const qrInput = document.getElementById("qrInput");
-const upiInput = document.getElementById("upiInput");
-
-function saveQR(){
-  const data = { qr: qrInput.value, upi: upiInput.value };
-  localStorage.setItem("paymentInfo", JSON.stringify(data));
-  alert("Payment info updated!");
-}
-
-function loadQR(){
-  const data = JSON.parse(localStorage.getItem("paymentInfo")||'{"qr":"","upi":""}');
-  qrInput.value = data.qr;
-  upiInput.value = data.upi;
-}
-
-/* ==============================
-   INITIAL LOAD
-============================== */
-loadBrand();
+/* ===================== INITIAL LOAD ===================== */
+loadSiteSettings();
 renderProducts();
-loadLinks();
-loadQR();
 </script>
 </body>
 </html>
