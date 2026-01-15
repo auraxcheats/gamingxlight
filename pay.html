@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Secure Payment | GAMING X LIGHT</title>
+<title>Payment Details | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+(function(){ emailjs.init("lDpUNN_uwsW-vT8_2"); })();
+</script>
 
 <style>
 *{box-sizing:border-box}
@@ -19,169 +25,180 @@ body{
   padding:20px;
 }
 
-.card{
-  width:100%;
+.container{
   max-width:420px;
-  background: rgba(20,20,20,.75);
+  width:100%;
+  background: rgba(20,20,20,.85);
   backdrop-filter: blur(14px);
-  border:1px solid rgba(255,255,255,.08);
   border-radius:20px;
   padding:28px;
-  box-shadow: 0 0 30px rgba(168,85,247,.45),
-              inset 0 0 20px rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow: 0 0 25px rgba(168,85,247,.5),
+              inset 0 0 10px rgba(255,255,255,.05);
   text-align:center;
 }
 
-.brand{
-  font-weight:900;
-  letter-spacing:1px;
+.logo{
+  width:80px;
+  margin:0 auto 10px;
+  display:block;
+}
+
+h2{
+  margin-bottom:12px;
+  font-size:24px;
   color:#c084fc;
+}
+.product-name{
+  font-weight:900;
+  font-size:20px;
   margin-bottom:6px;
 }
-
-h2{margin:4px 0 2px;font-size:22px}
 .price{
-  font-size:30px;
-  font-weight:900;
+  font-size:28px;
   color:#00ffd5;
-  margin-bottom:14px;
-}
-
-.qr-box{
-  position: relative;
-  display:inline-block;
-  background:#0f0f15;
-  border-radius:16px;
-  padding:18px;
-  margin:18px 0;
-  box-shadow: 0 0 20px rgba(0,0,0,.6);
-  animation: glow 2s infinite alternate;
-}
-
-.qr-box img{
-  width:220px;
-  border-radius:14px;
-  display:block;
-  margin:0 auto;
-}
-
-@keyframes glow {
-  0%{ box-shadow: 0 0 20px rgba(168,85,247,.5); }
-  50%{ box-shadow: 0 0 30px rgba(168,85,247,.9); }
-  100%{ box-shadow: 0 0 25px rgba(168,85,247,.7); }
-}
-
-.upi{
-  margin-top:12px;
-  font-size:16px;
-  font-weight:700;
-  color:#c084fc;
-}
-
-.btn{
-  width:100%;
-  padding:16px;
-  margin-top:16px;
-  background:linear-gradient(135deg,#a855f7,#7c3aed);
-  border:none;
-  border-radius:14px;
   font-weight:900;
-  font-size:15px;
-  cursor:pointer;
-  color:#000;
-  transition:.25s;
-}
-.btn:hover{transform:translateY(-1px);opacity:.95}
-
-.back{
-  display:block;
-  margin-top:16px;
-  font-size:13px;
-  color:#a855f7;
-  text-decoration:none
+  margin-bottom:18px;
 }
 
-/* POPUP */
-.popup{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.75);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
-}
-.popup-card{
-  max-width:340px;
-  background:#141414;
-  padding:22px;
-  border-radius:18px;
-  box-shadow:0 0 35px rgba(168,85,247,.7);
-  text-align:center;
-}
-.popup-card img{
+input, select, button{
   width:100%;
-  border-radius:14px
-}
-.popup-card p{
-  margin:12px 0 6px;
+  padding:14px;
+  margin-bottom:14px;
+  border-radius:12px;
+  border:none;
   font-size:14px;
-  font-weight:700;
+  outline:none;
+}
+
+input, select{
+  background:#0f0f15;
   color:#fff;
 }
-.popup-card .btn{
-  margin-top:10px;
+
+button{
+  background: linear-gradient(135deg,#a855f7,#7c3aed);
+  color:#000;
+  font-weight:900;
+  cursor:pointer;
+  transition:.25s;
+}
+button:hover{
+  transform:translateY(-1px);
+  opacity:.95;
+}
+
+small{
+  opacity:.6;
+}
+
+#successBox{
+  display:none;
+}
+#successBox h2{
+  color:#00ffcc;
+}
+#successBox a{
+  display:inline-block;
+  margin-top:18px;
+  padding:14px 22px;
+  background:#a855f7;
+  color:#000;
+  font-weight:800;
+  border-radius:12px;
+  text-decoration:none;
 }
 </style>
 </head>
+
 <body>
 
-<div class="card">
-  <div class="brand">GAMING X LIGHT</div>
+<div class="container">
+  <img src="logo.png" class="logo" alt="Logo">
 
-  <h2 id="pname">Loading...</h2>
+  <h2>Submit Payment Details</h2>
+
+  <div class="product-name" id="product"></div>
   <div class="price" id="price"></div>
 
-  <div class="qr-box">
-    <img src="qr.png" alt="Scan to Pay">
-    <div class="upi">UPI ID: sahimam@ptyes</div>
-  </div>
+  <form id="orderForm">
+    <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
+    <input type="text" id="uid" placeholder="Guild UID (Example: 100200300)" required>
 
-  <button class="btn" onclick="openPopup()">I HAVE PAID</button>
-  <a href="index.html" class="back">← Back to Home</a>
-</div>
+    <select id="region">
+      <option>🇮🇳 India</option>
+      <option>🌍 Other</option>
+    </select>
 
-<!-- WARNING POPUP -->
-<div class="popup" id="popup">
-  <div class="popup-card">
-    <img src="warning.png" alt="Warning">
+    <input type="text" id="telegram" placeholder="Telegram Username (@username)" required>
+    <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
+    <input type="email" id="email" placeholder="Your Email Address" required>
+
+    <button type="submit">SUBMIT ORDER</button>
+    <small>Please wait 10–30 minutes for processing.</small>
+  </form>
+
+  <div id="successBox">
+    <h2>✅ ORDER RECEIVED!</h2>
     <p>
-      ⚠ Make sure to do this setting <b>in Guild</b>.<br>
-      And accept bot join request in guild .
+      Payment details & Guild UID received.<br>
+      Admin will verify your payment.<br>
+      Please wait <b>10–30 minutes</b>.
     </p>
-    <button class="btn" onclick="goPay()">CONTINUE</button>
+    <a href="index.html">⬅ BACK TO HOME</a><br><br>
+    <a href="https://t.me/Gameralsor" style="color:#a855f7;text-decoration:none;">👉 Telegram Support</a>
   </div>
 </div>
 
 <script>
-const params = new URLSearchParams(location.search);
+// GET PRODUCT & PRICE
+const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = params.get("price");
 
 if(!product || !price){
-  document.body.innerHTML =
-    "<h2>Invalid Access</h2><a href='index.html'>Go Home</a>";
+  alert("❌ Invalid access!");
+  window.location.href="index.html";
 }else{
-  document.getElementById("pname").innerText = decodeURIComponent(product);
+  document.getElementById("product").innerText = decodeURIComponent(product);
   document.getElementById("price").innerText = "₹" + price;
 }
 
-function openPopup(){
-  document.getElementById("popup").style.display="flex";
-}
-function goPay(){
-  location.href = "pay.html?product="+encodeURIComponent(product)+"&price="+price;
-}
+// HANDLE FORM SUBMISSION
+document.getElementById("orderForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+
+  const data = {
+    product: decodeURIComponent(product) + " - ₹" + price,
+    utr: document.getElementById("utr").value,
+    uid: document.getElementById("uid").value,
+    region: document.getElementById("region").value,
+    telegram: document.getElementById("telegram").value,
+    whatsapp: document.getElementById("whatsapp").value,
+    email: document.getElementById("email").value
+  };
+
+  // SAVE ORDER LOCALLY (for admin panel)
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  orders.push(data);
+  localStorage.setItem("orders", JSON.stringify(orders));
+
+  try{
+    // SEND EMAIL TO ADMIN
+    await emailjs.send("service_sd0ge44","template_eclz1lh", data);
+
+    // SEND EMAIL TO CUSTOMER
+    await emailjs.send("service_sd0ge44","customer_reply", data);
+
+    // SHOW SUCCESS
+    document.getElementById("orderForm").style.display = "none";
+    document.getElementById("successBox").style.display = "block";
+
+  }catch(err){
+    console.error(err);
+    alert("❌ Email error! Try again later.");
+  }
+});
 </script>
 
 </body>
