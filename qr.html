@@ -11,15 +11,15 @@ h2,h1,h3{margin:6px 0}
 button{padding:14px 22px;background:#a855f7;border:none;border-radius:10px;font-weight:800;cursor:pointer;margin-top:15px}
 button:hover{opacity:.9}
 img{border-radius:12px;margin-top:15px}
-a{color:#a855f7;text-decoration:none}
 </style>
 </head>
 <body>
+
 <div class="box">
   <h3 id="username">Hello, Guest</h3>
   <h2 id="pname">Loading...</h2>
   <h1 id="price"></h1>
-  <img src="qr.png" width="220" alt="Scan QR to Pay"><br>
+  <img id="qrImg" src="qr.png" width="220" alt="Scan QR to Pay"><br>
   <p><b>UPI ID:</b> sahimam@ptyes</p>
   <button onclick="goPay()">I HAVE PAID</button>
   <p style="margin-top:15px"><a href="index.html">Back to Home</a></p>
@@ -29,13 +29,13 @@ a{color:#a855f7;text-decoration:none}
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = params.get("price");
-if(!product||!price){ window.location.href="index.html"; }
-document.getElementById("pname").innerText=decodeURIComponent(product);
-document.getElementById("price").innerText="₹"+price;
+document.getElementById("pname").innerText = decodeURIComponent(product);
+document.getElementById("price").innerText = "₹" + price;
 
 function goPay(){
   window.location.href=`pay.html?product=${encodeURIComponent(product)}&price=${price}`;
 }
 </script>
+
 </body>
 </html>
