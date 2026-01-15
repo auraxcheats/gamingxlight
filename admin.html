@@ -2,171 +2,276 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Panel | Gaming X Light</title>
+<title>Admin Panel | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{margin:0;font-family:Arial;background:#0b0b0f;color:#fff;padding:20px}
-.container{max-width:1200px;margin:auto;background:#141414;padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,.1)}
-h2{text-align:center;margin-bottom:20px;color:#a855f7}
-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px}
-th,td{border:1px solid rgba(255,255,255,.15);padding:8px;text-align:center}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#0b0b0f;
+  color:#fff;
+  padding:20px;
+}
+.container{
+  max-width:1200px;
+  margin:auto;
+  background:#141414;
+  padding:20px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.1);
+}
+h2,h3{margin-bottom:15px;color:#a855f7}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+th,td{
+  border:1px solid rgba(255,255,255,.15);
+  padding:8px;
+  text-align:center;
+}
 th{background:#1f1f1f}
-button{padding:6px 10px;border:none;border-radius:6px;font-weight:700;cursor:pointer}
+button{
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  font-weight:700;
+  cursor:pointer;
+}
 .deleteBtn{background:#ff4d4d;color:#000}
-.editBtn{background:#facc15;color:#000;margin-right:5px}
+.editBtn{background:#facc15;color:#000}
 .exportBtn{background:#a855f7;color:#000;margin-top:15px}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-input,textarea{width:100%;padding:8px;margin-bottom:8px;border-radius:6px;border:none;background:#0f0f0f;color:#fff}
-h3{margin-top:25px;color:#a855f7}
+a{color:#a855f7;text-decoration:none;font-weight:700;margin-left:10px}
+input,textarea{width:100%;padding:8px;margin:4px 0;border-radius:6px;border:none;background:#0f0f0f;color:#fff}
+label{font-weight:700;margin-top:8px;display:block}
 </style>
 </head>
 <body>
 
 <div class="container">
-<div class="topbar">
-  <h2>🛡 Admin Dashboard</h2>
-  <div>
-    <a href="index.html">⬅ Home</a>
-    <a href="#" onclick="logout()">Logout</a>
+  <div class="topbar">
+    <h2>🛡 Admin Panel</h2>
+    <div>
+      <a href="index.html">⬅ Home</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </div>
   </div>
-</div>
 
-<h3>🌟 Site Settings</h3>
-<label>Site Logo URL:</label>
-<input type="text" id="logoInput" placeholder="Enter logo URL">
-<label>YouTube Link:</label>
-<input type="text" id="youtubeInput" placeholder="YouTube channel link">
-<label>Proof Link:</label>
-<input type="text" id="proofInput" placeholder="Proof channel link">
-<label>Admin Support Link:</label>
-<input type="text" id="supportInput" placeholder="Telegram support link">
-<label>QR Image URL:</label>
-<input type="text" id="qrInput" placeholder="QR code image URL">
-<label>UPI ID:</label>
-<input type="text" id="upiInput" placeholder="UPI ID">
-<button onclick="saveSettings()">💾 Save Settings</button>
+  <!-- Main Site Settings -->
+  <h3>🌐 Main Site Settings</h3>
+  <label>Site Logo:</label>
+  <input type="file" id="logoInput" accept="image/*">
+  <button onclick="updateLogo()">Update Logo</button>
 
-<h3>📦 Products</h3>
-<table id="productsTable"></table>
-<button onclick="addProductPrompt()">➕ Add New Product</button>
-<button class="exportBtn" id="exportProductsBtn">⬇ Export Products CSV</button>
+  <label>Site Name:</label>
+  <input type="text" id="siteNameInput">
+  <button onclick="updateSiteName()">Update Name</button>
 
-<h3>📦 Orders</h3>
-<table id="ordersTable"></table>
-<button class="exportBtn" id="exportOrdersBtn">⬇ Export Orders CSV</button>
+  <label>Subtitle:</label>
+  <input type="text" id="siteSubtitleInput">
+  <button onclick="updateSubtitle()">Update Subtitle</button>
+
+  <label>Products Section Title:</label>
+  <input type="text" id="productsTitleInput">
+  <button onclick="updateProductsTitle()">Update Title</button>
+
+  <label>Official Links (JSON Array: [{name,url}])</label>
+  <textarea id="officialLinksInput" rows="4"></textarea>
+  <button onclick="updateLinks()">Update Links</button>
+
+  <label>QR Image:</label>
+  <input type="file" id="qrInput" accept="image/*">
+  <button onclick="updateQR()">Update QR</button>
+
+  <label>UPI ID:</label>
+  <input type="text" id="upiInput">
+  <button onclick="updateUPI()">Update UPI</button>
+
+  <hr style="margin:20px 0;border-color:#555">
+
+  <!-- Product Management -->
+  <h3>📦 Products</h3>
+  <table id="productsTable"></table>
+  <button class="exportBtn" onclick="exportProducts()">⬇ Export Products CSV</button>
+  <h4>Add New Product</h4>
+  <label>Name:</label>
+  <input type="text" id="newProductName">
+  <label>Price:</label>
+  <input type="number" id="newProductPrice">
+  <label>Badge:</label>
+  <input type="text" id="newProductBadge">
+  <label>Features (comma separated):</label>
+  <input type="text" id="newProductFeatures">
+  <button onclick="addProduct()">Add Product</button>
+
+  <hr style="margin:20px 0;border-color:#555">
+
+  <!-- Orders -->
+  <h3>📦 Orders</h3>
+  <table id="ordersTable"></table>
+  <button class="exportBtn" id="exportOrdersBtn">⬇ Export Orders CSV</button>
 
 </div>
 
 <script>
-// ====== ADMIN PASSWORD ======
+/* =============================
+   🔐 ADMIN PASSWORD
+============================= */
 const ADMIN_PASSWORD = "gaming_x_light";
-if(!sessionStorage.getItem("isAdmin")){
-  const pass = prompt("Enter Admin Password:");
-  if(pass!==ADMIN_PASSWORD){ alert("❌ Access Denied!"); window.location.href="index.html"; }
-  else sessionStorage.setItem("isAdmin","true");
+let isAdmin = sessionStorage.getItem("isAdmin");
+if(!isAdmin){
+  const pass = prompt("🔐 Enter Admin Password:");
+  if(pass !== ADMIN_PASSWORD){
+    alert("❌ Access Denied!");
+    window.location.href = "index.html";
+  }else{
+    sessionStorage.setItem("isAdmin","true");
+  }
 }
 
-function logout(){ sessionStorage.removeItem("isAdmin"); window.location.href="index.html"; }
-
-// ====== SITE SETTINGS ======
-const logoInput = document.getElementById("logoInput");
-const youtubeInput = document.getElementById("youtubeInput");
-const proofInput = document.getElementById("proofInput");
-const supportInput = document.getElementById("supportInput");
-const qrInput = document.getElementById("qrInput");
-const upiInput = document.getElementById("upiInput");
-
-let settings = JSON.parse(localStorage.getItem("siteSettings")||"{}");
-logoInput.value = settings.logo||"";
-youtubeInput.value = settings.youtube||"";
-proofInput.value = settings.proof||"";
-supportInput.value = settings.support||"";
-qrInput.value = settings.qr||"";
-upiInput.value = settings.upi||"";
-
-function saveSettings(){
-  settings.logo = logoInput.value;
-  settings.youtube = youtubeInput.value;
-  settings.proof = proofInput.value;
-  settings.support = supportInput.value;
-  settings.qr = qrInput.value;
-  settings.upi = upiInput.value;
-  localStorage.setItem("siteSettings", JSON.stringify(settings));
-  alert("✅ Settings Saved!");
+function logout(){
+  sessionStorage.removeItem("isAdmin");
+  window.location.href = "index.html";
 }
 
-// ====== PRODUCTS ======
-let products = JSON.parse(localStorage.getItem("products")||"[]");
+/* =============================
+   MAIN SITE SETTINGS
+============================= */
+document.getElementById("siteNameInput").value = localStorage.getItem("siteName") || "GAMING X LIGHT STORE";
+document.getElementById("siteSubtitleInput").value = localStorage.getItem("siteSubtitle") || "Premium Free Fire Tools & Bots";
+document.getElementById("productsTitleInput").value = localStorage.getItem("productsTitle") || "GUILD GLORY BOT PLANS";
+document.getElementById("officialLinksInput").value = localStorage.getItem("officialLinks") || JSON.stringify([
+  {name:"YouTube : GAMING X LIGHT", url:"https://www.youtube.com/@shah_emam_raja"},
+  {name:"Proof Channel", url:"https://t.me/glorybotsellproof"},
+  {name:"Admin Support", url:"https://t.me/Gameralsor"}
+],null,2);
+document.getElementById("upiInput").value = localStorage.getItem("upiID") || "kumaripalak0@fam";
+
+function updateLogo(){
+  const file = document.getElementById("logoInput").files[0];
+  if(!file){ alert("Select logo"); return; }
+  const reader = new FileReader();
+  reader.onload = e=>{ localStorage.setItem("siteLogo", e.target.result); alert("✅ Logo updated"); }
+  reader.readAsDataURL(file);
+}
+function updateSiteName(){ localStorage.setItem("siteName", document.getElementById("siteNameInput").value); alert("✅ Site name updated"); }
+function updateSubtitle(){ localStorage.setItem("siteSubtitle", document.getElementById("siteSubtitleInput").value); alert("✅ Subtitle updated"); }
+function updateProductsTitle(){ localStorage.setItem("productsTitle", document.getElementById("productsTitleInput").value); alert("✅ Products section title updated"); }
+function updateLinks(){
+  try{
+    const links = JSON.parse(document.getElementById("officialLinksInput").value);
+    localStorage.setItem("officialLinks", JSON.stringify(links));
+    alert("✅ Links updated");
+  }catch(e){ alert("❌ Invalid JSON"); }
+}
+function updateQR(){
+  const file = document.getElementById("qrInput").files[0];
+  if(!file){ alert("Select QR image"); return; }
+  const reader = new FileReader();
+  reader.onload = e=>{ localStorage.setItem("qrImage", e.target.result); alert("✅ QR updated"); }
+  reader.readAsDataURL(file);
+}
+function updateUPI(){ localStorage.setItem("upiID", document.getElementById("upiInput").value); alert("✅ UPI updated"); }
+
+/* =============================
+   PRODUCTS MANAGEMENT
+============================= */
+let PRODUCTS = JSON.parse(localStorage.getItem("products")||"[]");
 const productsTable = document.getElementById("productsTable");
 
 function renderProducts(){
   productsTable.innerHTML = `<tr>
-    <th>#</th><th>Name</th><th>Badge</th><th>Price</th><th>Features</th><th>Actions</th>
+    <th>#</th><th>Name</th><th>Price</th><th>Badge</th><th>Features</th><th>Action</th>
   </tr>`;
-  if(products.length===0){
-    const row = productsTable.insertRow();
-    const cell = row.insertCell(); cell.colSpan=6; cell.innerText="No products"; cell.style.opacity=".6";
+  if(PRODUCTS.length===0){
+    const row=productsTable.insertRow();
+    const cell=row.insertCell();
+    cell.colSpan=6;
+    cell.innerText="No products found.";
+    cell.style.opacity=".6";
     return;
   }
-  products.forEach((p,i)=>{
-    const row = productsTable.insertRow();
+  PRODUCTS.forEach((p,i)=>{
+    const row=productsTable.insertRow();
     row.insertCell().innerText=i+1;
     row.insertCell().innerText=p.name;
-    row.insertCell().innerText=p.badge;
     row.insertCell().innerText=p.price;
+    row.insertCell().innerText=p.badge;
     row.insertCell().innerText=p.features.join(", ");
-    const cell = row.insertCell();
-    const editBtn = document.createElement("button");
-    editBtn.innerText="Edit"; editBtn.className="editBtn";
-    editBtn.onclick=()=>editProduct(i);
-    const delBtn = document.createElement("button");
-    delBtn.innerText="Delete"; delBtn.className="deleteBtn";
-    delBtn.onclick=()=>{ if(confirm("Delete product?")){ products.splice(i,1); saveProducts(); } };
-    cell.appendChild(editBtn); cell.appendChild(delBtn);
+    const cell=row.insertCell();
+    const editBtn=document.createElement("button");
+    editBtn.className="editBtn"; editBtn.innerText="Edit";
+    editBtn.onclick=()=>{
+      const newName=prompt("Product name",p.name); if(newName)p.name=newName;
+      const newPrice=prompt("Price",p.price); if(newPrice)p.price=newPrice;
+      const newBadge=prompt("Badge",p.badge); if(newBadge)p.badge=newBadge;
+      const newFeatures=prompt("Features (comma separated)",p.features.join(","));
+      if(newFeatures)p.features=newFeatures.split(",");
+      saveProducts();
+    };
+    const delBtn=document.createElement("button");
+    delBtn.className="deleteBtn"; delBtn.innerText="Delete";
+    delBtn.style.marginLeft="5px";
+    delBtn.onclick=()=>{ if(confirm("Delete this product?")){ PRODUCTS.splice(i,1); saveProducts(); } };
+    cell.appendChild(editBtn);
+    cell.appendChild(delBtn);
   });
 }
 
+function addProduct(){
+  const name=document.getElementById("newProductName").value;
+  const price=document.getElementById("newProductPrice").value;
+  const badge=document.getElementById("newProductBadge").value;
+  const features=document.getElementById("newProductFeatures").value.split(",");
+  if(!name||!price){ alert("Name & Price required"); return; }
+  PRODUCTS.push({name,price,badge,features});
+  saveProducts();
+  document.getElementById("newProductName").value="";
+  document.getElementById("newProductPrice").value="";
+  document.getElementById("newProductBadge").value="";
+  document.getElementById("newProductFeatures").value="";
+}
+
 function saveProducts(){
-  localStorage.setItem("products", JSON.stringify(products));
+  localStorage.setItem("products", JSON.stringify(PRODUCTS));
   renderProducts();
 }
 
-function addProductPrompt(){
-  const name = prompt("Product Name:");
-  if(!name) return;
-  const badge = prompt("Badge (optional):","HOT");
-  const price = prompt("Price (₹):");
-  if(!price) return;
-  const features = prompt("Comma separated features:","Feature1, Feature2").split(",");
-  products.push({name,badge,price,features});
-  saveProducts();
+/* Export products CSV */
+function exportProducts(){
+  let csv="Name,Price,Badge,Features\n";
+  PRODUCTS.forEach(p=>{ csv+=`${p.name},${p.price},${p.badge},"${p.features.join(";")}"\n`; });
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download="products.csv"; a.click();
 }
 
-function editProduct(i){
-  const p = products[i];
-  const name = prompt("Product Name:",p.name); if(!name) return;
-  const badge = prompt("Badge:",p.badge);
-  const price = prompt("Price (₹):",p.price); if(!price) return;
-  const features = prompt("Comma separated features:",p.features.join(",")).split(",");
-  products[i]={name,badge,price,features};
-  saveProducts();
-}
+renderProducts();
 
-// ====== ORDERS ======
+/* =============================
+   ORDERS MANAGEMENT
+============================= */
 let orders = JSON.parse(localStorage.getItem("orders")||"[]");
 const ordersTable = document.getElementById("ordersTable");
 
 function renderOrders(){
-  ordersTable.innerHTML = `<tr>
-    <th>#</th><th>Username</th><th>Email</th><th>Product</th><th>Price</th><th>UTR</th><th>UID</th><th>Region</th><th>Telegram</th><th>WhatsApp</th>
+  ordersTable.innerHTML=`<tr>
+    <th>#</th><th>Username</th><th>Email</th><th>Product</th>
+    <th>Price</th><th>UTR</th><th>Guild UID</th>
+    <th>Region</th><th>Telegram</th><th>WhatsApp</th><th>Action</th>
   </tr>`;
   if(orders.length===0){
-    const row = ordersTable.insertRow();
-    const cell = row.insertCell(); cell.colSpan=10; cell.innerText="No orders"; cell.style.opacity=".6";
+    const row=ordersTable.insertRow();
+    const cell=row.insertCell();
+    cell.colSpan=11;
+    cell.innerText="No orders found.";
+    cell.style.opacity=".6";
     return;
   }
   orders.forEach((o,i)=>{
-    const row = ordersTable.insertRow();
+    const row=ordersTable.insertRow();
     row.insertCell().innerText=i+1;
     row.insertCell().innerText=o.username||"Guest";
     row.insertCell().innerText=o.email||"N/A";
@@ -177,24 +282,23 @@ function renderOrders(){
     row.insertCell().innerText=o.region;
     row.insertCell().innerText=o.telegram;
     row.insertCell().innerText=o.whatsapp;
+    const cell=row.insertCell();
+    const delBtn=document.createElement("button");
+    delBtn.className="deleteBtn"; delBtn.innerText="Delete";
+    delBtn.onclick=()=>{ if(confirm("Delete this order?")){ orders.splice(i,1); localStorage.setItem("orders",JSON.stringify(orders)); renderOrders(); } };
+    cell.appendChild(delBtn);
   });
 }
 
-// ====== EXPORT ======
-document.getElementById("exportProductsBtn").addEventListener("click",()=>{
-  let csv="Name,Badge,Price,Features\n";
-  products.forEach(p=>{ csv+=`${p.name},${p.badge},${p.price},"${p.features.join(";")}"\n`; });
-  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-  a.download="products.csv"; a.click();
-});
 document.getElementById("exportOrdersBtn").addEventListener("click",()=>{
-  let csv="Username,Email,Product,Price,UTR,UID,Region,Telegram,WhatsApp\n";
+  let csv="Username,Email,Product,Price,UTR,Guild UID,Region,Telegram,WhatsApp\n";
   orders.forEach(o=>{ csv+=`${o.username},${o.email},${o.product},${o.price},${o.utr},${o.uid},${o.region},${o.telegram},${o.whatsapp}\n`; });
-  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
   a.download="orders.csv"; a.click();
 });
 
-renderProducts(); renderOrders();
+renderOrders();
 </script>
 
 </body>
