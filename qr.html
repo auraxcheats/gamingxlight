@@ -1,27 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pay Now</title>
+<title>Scan & Pay | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{text-align:center;background:#0b0b0f;color:#fff;font-family:Arial}
-img{max-width:260px;margin:20px}
-a{display:block;background:#a855f7;color:#000;padding:14px;margin:20px;border-radius:10px;text-decoration:none;font-weight:800}
+body{background:#0b0b0f;color:#fff;font-family:Arial;text-align:center;padding:20px}
+.box{max-width:380px;margin:60px auto;padding:25px;background:#141414;border-radius:14px;box-shadow:0 0 20px rgba(168,85,247,.4)}
+h2,h1,h3{margin:6px 0}
+button{padding:14px 22px;background:#a855f7;border:none;border-radius:10px;font-weight:800;cursor:pointer;margin-top:15px}
+button:hover{opacity:.9}
+a{color:#a855f7;text-decoration:none}
+img{border-radius:12px;margin-top:15px}
 </style>
 </head>
 <body>
 
-<h2>Scan & Pay</h2>
-<img src="qr.png">
-<p><b>UPI:</b> sahimam@ptyes</p>
+<div class="box">
+  <h3 id="username">Hello, Guest</h3>
+  <h2 id="pname">Loading...</h2>
+  <h1 id="price"></h1>
 
-<a id="next">I HAVE PAID</a>
+  <img src="qr.png" width="220" alt="Scan QR to Pay"><br>
+  <p><b>UPI ID:</b> sahimam@ptyes</p>
+
+  <button onclick="goPay()">I HAVE PAID</button>
+  <p style="margin-top:15px"><a href="index.html">Back to Home</a></p>
+</div>
 
 <script>
-const p=new URLSearchParams(location.search);
-document.getElementById("next").href=
-`pay.html?product=${p.get("product")}&price=${p.get("price")}`;
+const params = new URLSearchParams(window.location.search);
+const product = params.get("product");
+const price = params.get("price");
+
+document.getElementById("pname").innerText = decodeURIComponent(product);
+document.getElementById("price").innerText = "₹" + price;
+
+function goPay(){
+  window.location.href = `pay.html?product=${encodeURIComponent(product)}&price=${price}`;
+}
 </script>
 
 </body>
