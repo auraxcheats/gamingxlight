@@ -5,6 +5,9 @@
 <title>Scan & Pay | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- QRCode.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <style>
 body {
   margin: 0;
@@ -23,29 +26,11 @@ body {
   box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
   position: relative;
 }
-.logo {
-  width: 120px;
-  margin-bottom: 20px;
-}
-.qr-container {
-  position: relative;
-  display: inline-block;
-}
-.qr-container img {
-  width: 220px;
-  border-radius: 14px;
-  box-shadow: 0 0 20px #a855f7;
-  animation: glow 1.5s infinite alternate;
-}
-@keyframes glow {
-  0% { box-shadow: 0 0 10px #a855f7; }
-  100% { box-shadow: 0 0 30px #facc15; }
-}
-.upi {
-  margin-top: 15px;
-  font-size: 18px;
-  font-weight: bold;
-}
+.logo { width: 120px; margin-bottom: 20px; }
+.qr-container { position: relative; display: inline-block; margin: 15px 0; }
+.qr-container canvas { border-radius: 14px; box-shadow: 0 0 25px #a855f7; animation: glow 1.5s infinite alternate; }
+@keyframes glow { 0% { box-shadow: 0 0 10px #a855f7; } 100% { box-shadow: 0 0 30px #facc15; } }
+.upi { font-size: 18px; font-weight: bold; margin-top: 10px; }
 button {
   margin-top: 25px;
   padding: 14px 22px;
@@ -58,30 +43,25 @@ button {
 }
 button:hover { opacity: 0.9; }
 
-/* Popup styles */
+/* Popup */
 #popup {
   display: none;
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top:0; left:0; right:0; bottom:0;
   background: rgba(0,0,0,0.85);
   justify-content: center;
   align-items: center;
   z-index: 9999;
   flex-direction: column;
 }
-#popup img {
-  max-width: 300px;
-  border-radius: 16px;
-}
+#popup img { max-width: 300px; border-radius: 16px; }
 #popup .text {
   color: #00ffcc;
   font-weight: bold;
   margin-top: 15px;
   font-size: 16px;
 }
-#popup .btn-container {
-  margin-top: 20px;
-}
+#popup .btn-container { margin-top: 20px; }
 #popup .continue-btn {
   padding: 12px 20px;
   background: #facc15;
@@ -104,10 +84,8 @@ button:hover { opacity: 0.9; }
   <h2 id="pname">Loading...</h2>
   <h3 id="price"></h3>
 
-  <!-- QR Code -->
-  <div class="qr-container">
-    <img src="qr.png" alt="Scan QR to Pay">
-  </div>
+  <!-- Dynamic QR Code -->
+  <div class="qr-container" id="qrCode"></div>
 
   <!-- UPI -->
   <p class="upi" id="upiId">sahimam@ptyes</p>
@@ -149,6 +127,20 @@ if(!user){
 } else {
   document.getElementById("pname").innerText += " - " + user.username;
 }
+
+// GENERATE DYNAMIC UPI QR
+const upiId = "sahimam@ptyes";
+const payeeName = "GAMING X LIGHT";
+const upiLink = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${price}&cu=INR`;
+
+new QRCode(document.getElementById("qrCode"), {
+  text: upiLink,
+  width: 220,
+  height: 220,
+  colorDark: "#a855f7",
+  colorLight: "#0b0b0f",
+  correctLevel: QRCode.CorrectLevel.H
+});
 
 // I HAVE PAID BUTTON
 document.getElementById("paidBtn").addEventListener("click", () => {
