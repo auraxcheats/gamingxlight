@@ -11,7 +11,7 @@ h2,h1,h3{margin:6px 0}
 button{padding:14px 22px;background:#a855f7;border:none;border-radius:10px;font-weight:800;cursor:pointer;margin-top:15px}
 button:hover{opacity:.9}
 a{color:#a855f7;text-decoration:none}
-img{border-radius:12px;margin-top:15px}
+img{border-radius:12px;margin-top:15px;max-width:220px}
 </style>
 </head>
 <body>
@@ -21,8 +21,8 @@ img{border-radius:12px;margin-top:15px}
   <h2 id="pname">Loading...</h2>
   <h1 id="price"></h1>
 
-  <img src="qr.png?v=2" width="220" alt="Scan QR to Pay"><br>
-  <p><b>UPI ID:</b> kumaripalak0@fam</p>
+  <img id="qrImage" src="qr.png" alt="Scan QR to Pay"><br>
+  <p><b>UPI ID:</b> <span id="upiID"></span></p>
 
   <button onclick="goPay()">I HAVE PAID</button>
   <p style="margin-top:15px"><a href="index.html">Back to Home</a></p>
@@ -33,15 +33,28 @@ const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = params.get("price");
 
-// BLOCK DIRECT ACCESS
+// Load QR and UPI dynamically from localStorage (set by admin)
+const qrImage = localStorage.getItem("qrImage") || "qr.png";
+const upiID = localStorage.getItem("upiID") || "kumaripalak0@fam";
+
+document.getElementById("qrImage").src = decodeURIComponent(params.get("qr")) || qrImage;
+document.getElementById("upiID").innerText = decodeURIComponent(params.get("upi")) || upiID;
+
+// Load product name and price
 if(!product || !price){
-  alert("❌ Invalid access!");
-  window.location.href = "index.html";
+  document.body.innerHTML = "<h2>Invalid Access</h2><a href='index.html'>Go Home</a>";
+}else{
+  document.getElementById("pname").innerText = decodeURIComponent(product);
+  document.getElementById("price").innerText = "₹" + price;
 }
 
-document.getElementById("pname").innerText = decodeURIComponent(product);
-document.getElementById("price").innerText = "₹" + price;
+// Show username if logged user exists
+const user = JSON.parse(localStorage.getItem("loggedUser"));
+if(user){
+  document.getElementById("username").innerText = "Hello, " + user.username;
+}
 
+// Navigate to pay page
 function goPay(){
   window.location.href = `pay.html?product=${encodeURIComponent(product)}&price=${price}`;
 }
