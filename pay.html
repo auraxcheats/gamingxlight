@@ -12,116 +12,70 @@
 </script>
 
 <style>
-*{box-sizing:border-box}
 body{
   margin:0;
-  min-height:100vh;
-  background: radial-gradient(circle at top, #2a0845, #0b0b0f 60%);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:Arial,sans-serif;
+  background: radial-gradient(circle at top,#1c1030,#0b0b0f 65%);
   color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
 }
-
 .container{
-  max-width:420px;
-  width:100%;
-  background: rgba(20,20,20,.85);
-  backdrop-filter: blur(14px);
-  border-radius:20px;
-  padding:28px;
-  border:1px solid rgba(255,255,255,.08);
-  box-shadow: 0 0 25px rgba(168,85,247,.5),
-              inset 0 0 10px rgba(255,255,255,.05);
+  max-width:450px;
+  margin:40px auto;
+  background:#141414;
+  padding:25px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.1);
   text-align:center;
 }
-
 .logo{
-  width:80px;
-  margin:0 auto 10px;
-  display:block;
+  width:120px;
+  margin-bottom:15px;
 }
-
 h2{
-  margin-bottom:12px;
-  font-size:24px;
-  color:#c084fc;
+  margin-bottom:20px;
 }
-.product-name{
-  font-weight:900;
-  font-size:20px;
-  margin-bottom:6px;
-}
-.price{
-  font-size:28px;
-  color:#00ffd5;
-  font-weight:900;
-  margin-bottom:18px;
-}
-
-input, select, button{
+input,select,button{
   width:100%;
   padding:14px;
   margin-bottom:14px;
-  border-radius:12px;
+  border-radius:10px;
   border:none;
   font-size:14px;
   outline:none;
 }
-
-input, select{
-  background:#0f0f15;
+input,select{
+  background:#0f0f0f;
   color:#fff;
 }
-
 button{
-  background: linear-gradient(135deg,#a855f7,#7c3aed);
-  color:#000;
-  font-weight:900;
-  cursor:pointer;
-  transition:.25s;
-}
-button:hover{
-  transform:translateY(-1px);
-  opacity:.95;
-}
-
-small{
-  opacity:.6;
-}
-
-#successBox{
-  display:none;
-}
-#successBox h2{
-  color:#00ffcc;
-}
-#successBox a{
-  display:inline-block;
-  margin-top:18px;
-  padding:14px 22px;
   background:#a855f7;
   color:#000;
   font-weight:800;
-  border-radius:12px;
-  text-decoration:none;
+  cursor:pointer;
 }
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+small{opacity:.6}
+#successBox{
+  display:none;
+  text-align:center;
+}
+#successBox h2{color:#00ffcc;}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <img src="logo.png" class="logo" alt="Logo">
-
-  <h2>Submit Payment Details</h2>
-
-  <div class="product-name" id="product"></div>
-  <div class="price" id="price"></div>
+  <img src="logo.png" class="logo" alt="Gaming X Light Logo">
 
   <form id="orderForm">
+    <h2>Submit Payment Details</h2>
+
+    <input type="text" id="product" readonly>
+
     <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
     <input type="text" id="uid" placeholder="Guild UID (Example: 100200300)" required>
 
@@ -134,69 +88,80 @@ small{
     <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
     <input type="email" id="email" placeholder="Your Email Address" required>
 
-    <button type="submit">SUBMIT ORDER</button>
-    <small>Please wait 10–30 minutes for processing.</small>
+    <button type="submit" id="submitBtn">SUBMIT ORDER</button>
+    <small>Please wait 10–30 minutes after submission.</small>
   </form>
 
   <div id="successBox">
     <h2>✅ ORDER RECEIVED!</h2>
-    <p>
-      Payment details & Guild UID received.<br>
-      Admin will verify your payment.<br>
-      Please wait <b>10–30 minutes</b>.
-    </p>
-    <a href="index.html">⬅ BACK TO HOME</a><br><br>
+    <p>Payment details and Guild UID received.<br>Please wait <b>10–30 minutes</b>.<br>Admin will verify your payment.</p>
+    <a href="index.html" style="display:inline-block;margin-top:20px;padding:14px 22px;background:#a855f7;color:#000;font-weight:800;border-radius:10px;text-decoration:none;">⬅ BACK TO HOME</a><br><br>
     <a href="https://t.me/Gameralsor" style="color:#a855f7;text-decoration:none;">👉 Telegram Support</a>
   </div>
 </div>
 
 <script>
-// GET PRODUCT & PRICE
+// BLOCK DIRECT ACCESS
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = params.get("price");
 
 if(!product || !price){
-  alert("❌ Invalid access!");
-  window.location.href="index.html";
-}else{
-  document.getElementById("product").innerText = decodeURIComponent(product);
-  document.getElementById("price").innerText = "₹" + price;
+  alert("❌ Please complete payment first.");
+  window.location.href = "index.html";
 }
+
+document.getElementById("product").value = decodeURIComponent(product) + " - ₹" + price;
+
+// CHECK LOGIN
+const user = JSON.parse(localStorage.getItem("loggedUser"));
+if(!user){ alert("❌ Login required!"); window.location.href="login.html"; }
 
 // HANDLE FORM SUBMISSION
 document.getElementById("orderForm").addEventListener("submit", async function(e){
   e.preventDefault();
 
+  const btn = document.getElementById("submitBtn");
+  if(btn.disabled) return; // prevent double click
+  btn.disabled = true;
+  btn.innerText = "PLEASE WAIT...";
+
   const data = {
-    product: decodeURIComponent(product) + " - ₹" + price,
+    username: user.username,
+    email: document.getElementById("email").value,
+    product: document.getElementById("product").value,
     utr: document.getElementById("utr").value,
     uid: document.getElementById("uid").value,
     region: document.getElementById("region").value,
     telegram: document.getElementById("telegram").value,
-    whatsapp: document.getElementById("whatsapp").value,
-    email: document.getElementById("email").value
+    whatsapp: document.getElementById("whatsapp").value
   };
 
-  // SAVE ORDER LOCALLY (for admin panel)
-  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-  orders.push(data);
-  localStorage.setItem("orders", JSON.stringify(orders));
+  // SAVE ORDER LOCALLY
+  let allOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+  allOrders.push(data);
+  localStorage.setItem("orders", JSON.stringify(allOrders));
 
-  try{
+  try {
     // SEND EMAIL TO ADMIN
-    await emailjs.send("service_sd0ge44","template_eclz1lh", data);
+    await emailjs.send("service_sd0ge44", "template_eclz1lh", data);
 
     // SEND EMAIL TO CUSTOMER
-    await emailjs.send("service_sd0ge44","customer_reply", data);
+    await emailjs.send("service_sd0ge44", "customer_reply", {
+      to_name: user.username,
+      to_email: data.email,
+      product: data.product
+    });
 
     // SHOW SUCCESS
     document.getElementById("orderForm").style.display = "none";
     document.getElementById("successBox").style.display = "block";
 
-  }catch(err){
+  } catch(err){
     console.error(err);
-    alert("❌ Email error! Try again later.");
+    alert("❌ Email failed! Try again later.");
+    btn.disabled = false;
+    btn.innerText = "SUBMIT ORDER";
   }
 });
 </script>
