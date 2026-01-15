@@ -2,90 +2,153 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Scan & Pay | GAMING X LIGHT</title>
+<title>Secure Payment | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+*{box-sizing:border-box}
 body{
-  background:#0b0b0f;
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top, #2a0845, #0b0b0f 60%);
+  font-family:Arial,Helvetica,sans-serif;
   color:#fff;
-  font-family:Arial;
-  text-align:center;
-  padding:20px
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
 }
-.box{
-  max-width:380px;
-  margin:60px auto;
-  padding:25px;
-  background:#141414;
+
+.card{
+  width:100%;
+  max-width:420px;
+  background:rgba(20,20,20,.75);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:28px;
+  box-shadow:
+    0 0 30px rgba(168,85,247,.45),
+    inset 0 0 20px rgba(255,255,255,.03);
+}
+
+.brand{
+  font-weight:900;
+  letter-spacing:1px;
+  color:#c084fc;
+  margin-bottom:6px;
+}
+
+h2{margin:4px 0 2px;font-size:22px}
+.price{
+  font-size:30px;
+  font-weight:900;
+  color:#00ffd5;
+  margin-bottom:14px;
+}
+
+.qr-box{
+  background:#0f0f15;
+  border-radius:16px;
+  padding:18px;
+  margin:18px 0;
+  box-shadow:0 0 20px rgba(0,0,0,.6)
+}
+.qr-box img{
+  width:230px;
   border-radius:14px;
-  box-shadow:0 0 20px rgba(168,85,247,.4)
 }
-h2,h1,h3{margin:6px 0}
-button{
-  padding:14px 22px;
-  background:#a855f7;
+
+.upi{
+  margin-top:10px;
+  font-size:14px;
+  opacity:.85
+}
+.upi b{color:#c084fc}
+
+.btn{
+  width:100%;
+  padding:16px;
+  margin-top:16px;
+  background:linear-gradient(135deg,#a855f7,#7c3aed);
   border:none;
-  border-radius:10px;
-  font-weight:800;
+  border-radius:14px;
+  font-weight:900;
+  font-size:15px;
   cursor:pointer;
-  margin-top:15px
+  color:#000;
+  transition:.25s;
 }
-button:hover{opacity:.9}
-a{color:#a855f7;text-decoration:none}
-img{border-radius:12px;margin-top:15px}
+.btn:hover{transform:translateY(-1px);opacity:.95}
+
+.back{
+  display:block;
+  margin-top:16px;
+  font-size:13px;
+  color:#a855f7;
+  text-decoration:none
+}
 
 /* POPUP */
 .popup{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.7);
+  background:rgba(0,0,0,.75);
   display:none;
   align-items:center;
   justify-content:center;
   z-index:999;
 }
-.popup-box{
+.popup-card{
+  max-width:340px;
   background:#141414;
   padding:22px;
-  border-radius:14px;
-  max-width:320px;
-  box-shadow:0 0 25px rgba(168,85,247,.6)
+  border-radius:18px;
+  box-shadow:0 0 35px rgba(168,85,247,.7);
 }
-.popup-box img{
+.popup-card img{
   width:100%;
-  border-radius:10px
+  border-radius:14px
+}
+.popup-card p{
+  margin:12px 0 6px;
+  font-size:13px;
+  opacity:.8
 }
 </style>
 </head>
 <body>
 
-<div class="box">
-  <h3>GAMING X LIGHT</h3>
+<div class="card">
+  <div class="brand">GAMING X LIGHT</div>
+
   <h2 id="pname">Loading...</h2>
-  <h1 id="price"></h1>
+  <div class="price" id="price"></div>
 
-  <img src="qr.png" width="220" alt="Scan QR to Pay"><br>
-  <p><b>UPI ID:</b> sahimam@ptyes</p>
+  <div class="qr-box">
+    <img src="qr.png" alt="Scan to Pay">
+    <div class="upi">UPI ID: <b>sahimam@ptyes</b></div>
+  </div>
 
-  <button onclick="openPopup()">I HAVE PAID</button>
-  <p style="margin-top:15px"><a href="index.html">Back to Home</a></p>
+  <button class="btn" onclick="openPopup()">I HAVE PAID</button>
+  <a href="index.html" class="back">← Back to Home</a>
 </div>
 
 <!-- WARNING POPUP -->
 <div class="popup" id="popup">
-  <div class="popup-box">
-    <!-- replace warning.png with your image -->
+  <div class="popup-card">
     <img src="warning.png" alt="Warning">
-    <p style="margin-top:10px;opacity:.85">
-      Make sure payment is successful before continuing.
+    <p>
+      Make sure to do this settings <b>in Guild</b>.  
+      Wrong UTR or fake payment may lead to order cancellation.
     </p>
-    <button onclick="goPay()">CONTINUE</button>
+    <button class="btn" onclick="goPay()">CONTINUE</button>
   </div>
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
+const params = new URLSearchParams(location.search);
 const product = params.get("product");
 const price = params.get("price");
 
@@ -100,10 +163,9 @@ if(!product || !price){
 function openPopup(){
   document.getElementById("popup").style.display="flex";
 }
-
 function goPay(){
-  window.location.href =
-    "./pay.html?product="+encodeURIComponent(product)+"&price="+price;
+  location.href =
+    "pay.html?product="+encodeURIComponent(product)+"&price="+price;
 }
 </script>
 
