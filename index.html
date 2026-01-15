@@ -8,17 +8,17 @@
 :root{--purple:#a855f7;--border:rgba(255,255,255,.08)}
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial;background:radial-gradient(circle at top,#1c1030,#0b0b0f 65%);color:#fff}
-.hero{text-align:center;padding:50px 16px 20px;display:flex;align-items:center;justify-content:center;gap:10px;flex-direction:column}
-.hero img{height:60px;width:60px;object-fit:contain;}
+.hero{text-align:center;padding:50px 16px 20px;display:flex;flex-direction:column;align-items:center}
+.hero img{width:80px;margin-bottom:12px}
 .hero h1{margin:0;font-size:36px;font-weight:900;letter-spacing:2px;text-align:center}
 .hero h1 span{color:var(--purple)}
 .subtitle{opacity:.75}
 .divider{width:80%;max-width:420px;height:2px;background:linear-gradient(90deg,transparent,var(--purple),transparent);margin:20px auto}
 .section-title{text-align:center;padding:30px 0}
-.wrap{max-width:720px;margin:auto;padding:16px;display:grid;gap:20px;grid-template-columns:1fr 1fr}
+.wrap{max-width:720px;margin:auto;padding:16px;display:grid;grid-template-columns:1fr;gap:20px}
 .card{background:#141414;border-radius:16px;padding:20px;border:1px solid var(--border)}
 .badge{background:var(--purple);color:#000;display:inline-block;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:800}
-.price{font-size:28px;color:var(--purple);font-weight:900;margin-top:10px}
+.price{font-size:28px;color:var(--purple);font-weight:900}
 .buy{display:block;text-align:center;margin-top:15px;padding:12px;border-radius:10px;border:2px solid var(--purple);color:var(--purple);text-decoration:none;font-weight:800;cursor:pointer}
 .buy:hover{background:var(--purple);color:#000}
 .links{text-align:center;padding:40px 0}
@@ -30,7 +30,7 @@ footer{text-align:center;opacity:.5;font-size:12px;padding:14px}
 <body>
 
 <div class="hero">
-  <img src="logo.png" alt="Logo">
+  <img src="logo.png" alt="GAMING X LIGHT Logo">
   <h1>GAMING X<br><span>LIGHT</span><br>STORE</h1>
   <p class="subtitle">Premium Free Fire Tools & Bots</p>
   <div class="divider"></div>
@@ -51,34 +51,36 @@ footer{text-align:center;opacity:.5;font-size:12px;padding:14px}
 
 <footer>© 2026 GAMING X LIGHT Store</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
-// Supabase config
-const SUPABASE_URL = "https://dsrevynaanjmepnufzqi.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzcmV2eW5hYW5qbWVwbnVmenFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODc1NTQsImV4cCI6MjA4NDA2MzU1NH0.jSw2LRo7bTjA2uXR89Zn6AJMBARCIz-Vu722Jm9NSmM";
-const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// SUPABASE CONFIG
+const supabaseUrl = "https://dsrevynaanjmepnufzqi.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzcmV2eW5hYW5qbWVwZn..."; // your anon key
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Load products from Supabase
+// LOAD PRODUCTS
 async function loadProducts(){
-  const {data,error} = await supabase.from('products').select('*').order('id',{ascending:true});
+  const { data: products, error } = await supabase.from("products").select("*");
+  if(error) return console.error(error);
   const wrap = document.getElementById("products");
   wrap.innerHTML = "";
-  if(error){ console.error(error); return; }
-  data.forEach(p=>{
+  products.forEach(p=>{
     wrap.innerHTML += `<div class="card">
       <span class="badge">${p.badge}</span>
       <h3>${p.name}</h3>
       <div class="price">₹${p.price}</div>
-      <ul>${p.features.split("|").map(f=>`<li>✓ ${f}</li>`).join("")}</ul>
+      <ul>${JSON.parse(p.features).map(f=>`<li>✓ ${f}</li>`).join('')}</ul>
       <a class="buy" onclick="buy('${encodeURIComponent(p.name)}',${p.price})">BUY NOW</a>
     </div>`;
   });
 }
-loadProducts();
 
 function buy(name,price){
-  window.location.href = `qr.html?product=${name}&price=${price}`;
+  window.location.href=`qr.html?product=${name}&price=${price}`;
 }
+
+loadProducts();
 </script>
+
 </body>
 </html>
