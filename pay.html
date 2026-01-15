@@ -8,7 +8,9 @@
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
-(function(){ emailjs.init("lDpUNN_uwsW-vT8_2"); })();
+(function(){
+  emailjs.init("lDpUNN_uwsW-vT8_2");
+})();
 </script>
 
 <style>
@@ -30,15 +32,12 @@ small{opacity:.6}
   <h2>Submit Payment Details</h2>
 
   <input type="text" id="product" readonly>
-
   <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
   <input type="text" id="uid" placeholder="Guild UID (Example: 100200300)" required>
-
   <select id="region">
     <option value="India">🇮🇳 India</option>
     <option value="Other">🌍 Other</option>
   </select>
-
   <input type="text" id="telegram" placeholder="Telegram Username (@username)" required>
   <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
   <input type="email" id="email" placeholder="Your Email Address" required>
@@ -60,6 +59,7 @@ const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = params.get("price");
 
+// BLOCK DIRECT ACCESS
 if(!product || !price){
   alert("❌ Invalid access!");
   window.location.href = "index.html";
@@ -67,8 +67,13 @@ if(!product || !price){
 
 document.getElementById("product").value = decodeURIComponent(product) + " - ₹" + price;
 
+let submitted = false;
+
 document.getElementById("orderForm").addEventListener("submit", async function(e){
   e.preventDefault();
+  if(submitted) return;
+
+  submitted = true;
   const btn = document.getElementById("submitBtn");
   btn.disabled = true;
   btn.innerText = "PLEASE WAIT...";
@@ -81,23 +86,29 @@ document.getElementById("orderForm").addEventListener("submit", async function(e
     region: document.getElementById("region").value,
     telegram: document.getElementById("telegram").value,
     whatsapp: document.getElementById("whatsapp").value,
-    email: document.getElementById("email").value
+    email: document.getElementById("email").value,
+    username: "Guest" // since no login
   };
 
-  // Save locally for admin panel
+  // SAVE ORDER LOCALLY (for admin panel)
   let orders = JSON.parse(localStorage.getItem("orders") || "[]");
   orders.push(data);
   localStorage.setItem("orders", JSON.stringify(orders));
 
   try{
-    // Send only ONE email to admin per order
+    // SEND EMAIL TO ADMIN
     await emailjs.send("service_sd0ge44","template_eclz1lh",data);
+
+    // OPTIONAL: Customer auto-reply
+    await emailjs.send("service_sd0ge44","customer_reply",data);
 
     document.getElementById("orderForm").style.display="none";
     document.getElementById("successBox").style.display="block";
+
   }catch(err){
     console.error(err);
     alert("❌ Email failed. Try again later.");
+    submitted = false;
     btn.disabled = false;
     btn.innerText = "SUBMIT ORDER";
   }
