@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scan & Pay | GAMING X LIGHT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+  background:#0b0b0f;
+  color:#fff;
+  font-family:Arial;
+  text-align:center;
+  padding:20px
+}
+.box{
+  max-width:380px;
+  margin:60px auto;
+  padding:25px;
+  background:#141414;
+  border-radius:14px;
+  box-shadow:0 0 20px rgba(168,85,247,.4)
+}
+h1,h2,h3{margin:8px 0}
+button{
+  padding:14px 22px;
+  background:#a855f7;
+  border:none;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  margin-top:18px
+}
+button:hover{opacity:.9}
+a{color:#a855f7;text-decoration:none}
+img{border-radius:12px;margin-top:18px}
+small{opacity:.6}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h3>GAMING X LIGHT</h3>
+  <h2 id="pname">Loading...</h2>
+  <h1 id="price"></h1>
+
+  <img src="qr.png" width="220" alt="Scan QR to Pay">
+
+  <p><b>UPI ID:</b> sahimam@ptyes</p>
+  <small>Pay exact amount shown above</small>
+
+  <button onclick="goPay()">I HAVE PAID</button>
+
+  <p style="margin-top:16px">
+    <a href="index.html">⬅ Back to Home</a>
+  </p>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const product = params.get("product");
+const price = params.get("price");
+
+if(!product || !price){
+  document.body.innerHTML = `
+    <h2>❌ Invalid Access</h2>
+    <a href="index.html">Go Home</a>
+  `;
+}else{
+  document.getElementById("pname").innerText =
+    decodeURIComponent(product);
+  document.getElementById("price").innerText = "₹" + price;
+}
+
+function goPay(){
+  window.location.href =
+    "pay.html?product=" +
+    encodeURIComponent(product) +
+    "&price=" +
+    price;
+}
+</script>
+
+</body>
+</html>
