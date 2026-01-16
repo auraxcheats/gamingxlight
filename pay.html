@@ -1,127 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Order Payment | GAMING X LIGHT</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-(function(){
-  emailjs.init("Jq3n4jPZiiiwdgY7_"); // ✅ PUBLIC KEY
-})();
-</script>
-
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:radial-gradient(circle at top,#1c1030,#0b0b0f 65%);
-  color:#fff;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.container{
-  width:100%;
-  max-width:420px;
-  background:#141414;
-  padding:25px;
-  border-radius:18px;
-  border:1px solid rgba(255,255,255,.1);
-  box-shadow:0 0 25px rgba(168,85,247,.5);
-  text-align:center;
-}
-.logo{
-  width:90px;
-  margin-bottom:10px;
-}
-h2{margin:10px 0 20px}
-input,select,button{
-  width:100%;
-  padding:14px;
-  margin-bottom:14px;
-  border-radius:12px;
-  border:none;
-  font-size:14px;
-  outline:none;
-}
-input,select{
-  background:#0f0f0f;
-  color:#fff;
-}
-button{
-  background:#a855f7;
-  color:#000;
-  font-weight:800;
-  cursor:pointer;
-}
-button:disabled{
-  opacity:.6;
-}
-small{opacity:.6}
-.btn{
-  display:inline-block;
-  padding:14px 22px;
-  background:#a855f7;
-  color:#000;
-  font-weight:800;
-  border-radius:12px;
-  text-decoration:none;
-}
-.btn-outline{
-  display:inline-block;
-  padding:12px 20px;
-  border:2px solid #a855f7;
-  color:#a855f7;
-  border-radius:12px;
-  text-decoration:none;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-  <img src="logo.png" class="logo" alt="GAMING X LIGHT">
-
-  <form id="orderForm">
-    <h2>Submit Payment Details</h2>
-
-    <input type="text" id="product" readonly>
-
-    <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
-    <input type="text" id="uid" placeholder="Guild UID" required>
-
-    <select id="region">
-      <option>🇮🇳 India</option>
-      <option>🌍 Other</option>
-    </select>
-
-    <input type="text" id="telegram" placeholder="Telegram Username" required>
-    <input type="tel" id="whatsapp" placeholder="WhatsApp Number" required>
-    <input type="email" id="email" placeholder="Your Email Address" required>
-
-    <button type="submit" id="submitBtn">SUBMIT ORDER</button>
-    <small>Please wait 10–30 minutes after submission.</small>
-  </form>
-
-  <!-- SUCCESS -->
-  <div id="successBox" style="display:none;">
-    <h2 style="color:#00ffcc;">✅ ORDER RECEIVED</h2>
-    <p>Your order has been received.<br>Please wait <b>10–30 minutes</b>.</p>
-
-    <a href="index.html" class="btn">⬅ Back to Home</a><br><br>
-    <a href="https://t.me/Gameralsor" target="_blank" class="btn-outline">
-      💬 Telegram Support
-    </a>
-  </div>
-
-</div>
-
 <script>
 // ===== URL PARAMS =====
 const params = new URLSearchParams(window.location.search);
@@ -194,6 +70,11 @@ document.getElementById("orderForm").addEventListener("submit", async e=>{
       data
     );
 
+    // ✅ SAVE ORDER IN LOCAL STORAGE FOR ADMIN DASHBOARD
+    let allOrders = JSON.parse(localStorage.getItem("gx_orders") || "[]");
+    allOrders.push({...data, status: "Pending"});
+    localStorage.setItem("gx_orders", JSON.stringify(allOrders));
+
     orderForm.style.display="none";
     successBox.style.display="block";
 
@@ -205,6 +86,3 @@ document.getElementById("orderForm").addEventListener("submit", async e=>{
   }
 });
 </script>
-
-</body>
-</html>
