@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Approve Order | GAMING X LIGHT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+(function(){
+  emailjs.init("Jq3n4jPZiiiwdgY7_"); // PUBLIC KEY
+})();
+</script>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:Arial;
+  background:radial-gradient(circle at top,#1c1030,#0b0b0f 70%);
+  color:#fff;
+}
+.card{
+  width:100%;
+  max-width:420px;
+  background:#141414;
+  padding:26px;
+  border-radius:18px;
+  text-align:center;
+  box-shadow:0 0 35px rgba(168,85,247,.6);
+}
+.logo{
+  width:120px;
+  margin-bottom:12px;
+}
+h2{
+  margin:10px 0 18px;
+}
+.info{
+  background:#0f0f0f;
+  padding:14px;
+  border-radius:12px;
+  margin-bottom:18px;
+  text-align:left;
+  font-size:14px;
+}
+.info b{color:#a855f7}
+button{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  background:#22c55e;
+  color:#000;
+  font-weight:900;
+  cursor:pointer;
+  font-size:15px;
+}
+button:disabled{
+  background:#555;
+  color:#aaa;
+  cursor:not-allowed;
+}
+.status{
+  margin-top:15px;
+  font-weight:bold;
+}
+.footer{
+  margin-top:18px;
+  font-size:12px;
+  opacity:.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <img src="logo.png" class="logo" alt="Gaming X Light">
+
+  <h2>Order Approval Panel</h2>
+
+  <div class="info">
+    <p><b>Order ID:</b> <span id="oid">-</span></p>
+    <p><b>Product:</b> <span id="pname">-</span></p>
+    <p><b>Price:</b> ₹<span id="price">-</span></p>
+    <p><b>Customer Email:</b> <span id="email">-</span></p>
+  </div>
+
+  <button id="sendBtn">✅ APPROVE & SEND EMAIL</button>
+
+  <div class="status" id="status"></div>
+
+  <div class="footer">
+    GAMING X LIGHT • Admin Only
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const orderId = params.get("order");
+const email   = params.get("email");
+const product = params.get("product");
+const price   = params.get("price");
+
+const btn = document.getElementById("sendBtn");
+const statusText = document.getElementById("status");
+
+// Fill data
+document.getElementById("oid").innerText = orderId || "N/A";
+document.getElementById("pname").innerText = decodeURIComponent(product || "");
+document.getElementById("price").innerText = price || "";
+document.getElementById("email").innerText = email || "";
+
+// ---- ORDER LOCK SYSTEM ----
+let approvedOrders = JSON.parse(localStorage.getItem("approvedOrders") || "[]");
+
+if(approvedOrders.includes(orderId)){
+  btn.disabled = true;
+  btn.innerText = "✅ ALREADY APPROVED";
+  statusText.innerText = "Email already sent to customer.";
+  statusText.style.color = "#22c55e";
+}
+
+// ---- APPROVE CLICK ----
+btn.addEventListener("click", async () => {
+
+  if(approvedOrders.includes(orderId)) return;
+
+  btn.disabled = true;
+  btn.innerText = "SENDING EMAIL...";
+
+  try{
+    await emailjs.send(
+      "service_bepfzoh",
+      "customer_reply",
+      {
+        order_id: orderId,
+        product: decodeURIComponent(product),
+        price: price,
+        status: "APPROVED",
+        to_email: email
+      }
+    );
+
+    approvedOrders.push(orderId);
+    localStorage.setItem("approvedOrders", JSON.stringify(approvedOrders));
+
+    btn.innerText = "✅ APPROVED (LOCKED)";
+    statusText.innerText = "Customer email sent successfully.";
+    statusText.style.color = "#22c55e";
+
+  }catch(err){
+    console.error(err);
+    alert("❌ Email failed.");
+    btn.disabled = false;
+    btn.innerText = "✅ APPROVE & SEND EMAIL";
+  }
+});
+</script>
+
+</body>
+</html>
