@@ -7,11 +7,6 @@
 
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-(function(){
-  emailjs.init("Jq3n4jPZiiiwdgY7_"); // PUBLIC KEY
-})();
-</script>
 
 <style>
 body{
@@ -25,21 +20,15 @@ body{
   color:#fff;
 }
 .card{
-  width:100%;
   max-width:420px;
+  width:100%;
   background:#141414;
   padding:26px;
   border-radius:18px;
   text-align:center;
   box-shadow:0 0 35px rgba(168,85,247,.6);
 }
-.logo{
-  width:120px;
-  margin-bottom:12px;
-}
-h2{
-  margin:10px 0 18px;
-}
+.logo{width:110px;margin-bottom:10px}
 .info{
   background:#0f0f0f;
   padding:14px;
@@ -58,21 +47,14 @@ button{
   color:#000;
   font-weight:900;
   cursor:pointer;
-  font-size:15px;
 }
 button:disabled{
   background:#555;
   color:#aaa;
-  cursor:not-allowed;
 }
 .status{
-  margin-top:15px;
+  margin-top:14px;
   font-weight:bold;
-}
-.footer{
-  margin-top:18px;
-  font-size:12px;
-  opacity:.6;
 }
 </style>
 </head>
@@ -80,60 +62,59 @@ button:disabled{
 <body>
 
 <div class="card">
-  <img src="logo.png" class="logo" alt="Gaming X Light">
+  <img src="logo.png" class="logo">
 
-  <h2>Order Approval Panel</h2>
+  <h2>Order Approval</h2>
 
   <div class="info">
     <p><b>Order ID:</b> <span id="oid">-</span></p>
     <p><b>Product:</b> <span id="pname">-</span></p>
     <p><b>Price:</b> ₹<span id="price">-</span></p>
-    <p><b>Customer Email:</b> <span id="email">-</span></p>
+    <p><b>Email:</b> <span id="email">-</span></p>
   </div>
 
-  <button id="sendBtn">✅ APPROVE & SEND EMAIL</button>
-
+  <button id="approveBtn">✅ APPROVE & SEND EMAIL</button>
   <div class="status" id="status"></div>
-
-  <div class="footer">
-    GAMING X LIGHT • Admin Only
-  </div>
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
+/* -------- SAFE INIT -------- */
+emailjs.init("Jq3n4jPZiiiwdgY7_");
 
-const orderId = params.get("order");
-const email   = params.get("email");
-const product = params.get("product");
-const price   = params.get("price");
+/* -------- PARAMS -------- */
+const p = new URLSearchParams(window.location.search);
 
-const btn = document.getElementById("sendBtn");
-const statusText = document.getElementById("status");
+const orderId = p.get("order") || "N/A";
+const product = decodeURIComponent(p.get("product") || "");
+const price   = p.get("price") || "";
+const email   = p.get("email") || "";
 
-// Fill data
-document.getElementById("oid").innerText = orderId || "N/A";
-document.getElementById("pname").innerText = decodeURIComponent(product || "");
-document.getElementById("price").innerText = price || "";
-document.getElementById("email").innerText = email || "";
+document.getElementById("oid").innerText = orderId;
+document.getElementById("pname").innerText = product;
+document.getElementById("price").innerText = price;
+document.getElementById("email").innerText = email;
 
-// ---- ORDER LOCK SYSTEM ----
-let approvedOrders = JSON.parse(localStorage.getItem("approvedOrders") || "[]");
+const btn = document.getElementById("approveBtn");
+const status = document.getElementById("status");
 
-if(approvedOrders.includes(orderId)){
+/* -------- LOCK SYSTEM -------- */
+let done = JSON.parse(localStorage.getItem("approved") || "[]");
+if(done.includes(orderId)){
   btn.disabled = true;
   btn.innerText = "✅ ALREADY APPROVED";
-  statusText.innerText = "Email already sent to customer.";
-  statusText.style.color = "#22c55e";
+  status.innerText = "Email already sent.";
+  status.style.color = "#22c55e";
 }
 
-// ---- APPROVE CLICK ----
-btn.addEventListener("click", async () => {
-
-  if(approvedOrders.includes(orderId)) return;
+/* -------- CLICK -------- */
+btn.onclick = async () => {
+  if(!email){
+    alert("Email missing in URL");
+    return;
+  }
 
   btn.disabled = true;
-  btn.innerText = "SENDING EMAIL...";
+  btn.innerText = "SENDING...";
 
   try{
     await emailjs.send(
@@ -141,27 +122,27 @@ btn.addEventListener("click", async () => {
       "customer_reply",
       {
         order_id: orderId,
-        product: decodeURIComponent(product),
+        product: product,
         price: price,
         status: "APPROVED",
         to_email: email
       }
     );
 
-    approvedOrders.push(orderId);
-    localStorage.setItem("approvedOrders", JSON.stringify(approvedOrders));
+    done.push(orderId);
+    localStorage.setItem("approved", JSON.stringify(done));
 
-    btn.innerText = "✅ APPROVED (LOCKED)";
-    statusText.innerText = "Customer email sent successfully.";
-    statusText.style.color = "#22c55e";
+    btn.innerText = "✅ APPROVED";
+    status.innerText = "Customer email sent successfully.";
+    status.style.color = "#22c55e";
 
-  }catch(err){
-    console.error(err);
-    alert("❌ Email failed.");
+  }catch(e){
+    console.error(e);
+    alert("EmailJS error. Check console.");
     btn.disabled = false;
     btn.innerText = "✅ APPROVE & SEND EMAIL";
   }
-});
+};
 </script>
 
 </body>
