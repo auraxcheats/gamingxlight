@@ -7,142 +7,121 @@
 
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+(function(){ emailjs.init("Jq3n4jPZiiiwdgY7_"); })();
+</script>
 
 <style>
-body{
+body {
   margin:0;
-  min-height:100vh;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #1c1030, #0b0b0f 65%);
+  color: #fff;
   display:flex;
   justify-content:center;
   align-items:center;
-  font-family:Arial;
-  background:radial-gradient(circle at top,#1c1030,#0b0b0f 70%);
-  color:#fff;
+  min-height:100vh;
 }
-.card{
-  max-width:420px;
+.container {
   width:100%;
+  max-width:450px;
   background:#141414;
-  padding:26px;
-  border-radius:18px;
+  padding:30px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.1);
   text-align:center;
-  box-shadow:0 0 35px rgba(168,85,247,.6);
 }
-.logo{width:110px;margin-bottom:10px}
-.info{
-  background:#0f0f0f;
-  padding:14px;
-  border-radius:12px;
-  margin-bottom:18px;
-  text-align:left;
-  font-size:14px;
+.logo {
+  width:120px;
+  margin-bottom:20px;
 }
-.info b{color:#a855f7}
-button{
-  width:100%;
-  padding:15px;
+h2,h3,p{margin:10px 0;}
+button {
+  margin:10px 10px 0 10px;
+  padding:14px 22px;
+  background:#a855f7;
+  color:#000;
   border:none;
   border-radius:12px;
-  background:#22c55e;
-  color:#000;
-  font-weight:900;
+  font-weight:800;
   cursor:pointer;
 }
-button:disabled{
-  background:#555;
-  color:#aaa;
-}
-.status{
-  margin-top:14px;
-  font-weight:bold;
-}
+button:hover{opacity:0.9}
+button:disabled{opacity:.5;cursor:not-allowed}
 </style>
 </head>
-
 <body>
 
-<div class="card">
-  <img src="logo.png" class="logo">
+<div class="container">
+  <img src="logo.png" class="logo" alt="GAMING X LIGHT">
+  <h2>Approve/Reject Order</h2>
 
-  <h2>Order Approval</h2>
+  <p><b>Order ID:</b> <span id="orderId"></span></p>
+  <p><b>Product:</b> <span id="product"></span></p>
+  <p><b>Price:</b> ₹<span id="price"></span></p>
+  <p><b>Guild UID:</b> <span id="uid"></span></p>
+  <p><b>Customer Email:</b> <span id="email"></span></p>
 
-  <div class="info">
-    <p><b>Order ID:</b> <span id="oid">-</span></p>
-    <p><b>Product:</b> <span id="pname">-</span></p>
-    <p><b>Price:</b> ₹<span id="price">-</span></p>
-    <p><b>Email:</b> <span id="email">-</span></p>
-  </div>
+  <button id="approveBtn">APPROVE</button>
+  <button id="rejectBtn">REJECT</button>
 
-  <button id="approveBtn">✅ APPROVE & SEND EMAIL</button>
-  <div class="status" id="status"></div>
+  <p id="statusMsg" style="margin-top:15px;font-weight:bold;color:#00ffcc"></p>
 </div>
 
 <script>
-/* -------- SAFE INIT -------- */
-emailjs.init("Jq3n4jPZiiiwdgY7_");
+// GET ORDER DETAILS FROM URL
+const params = new URLSearchParams(window.location.search);
+const orderId = params.get("order");
+const product = params.get("product");
+const price = params.get("price");
+const uid = params.get("uid");
+const email = params.get("email");
 
-/* -------- PARAMS -------- */
-const p = new URLSearchParams(window.location.search);
-
-const orderId = p.get("order") || "N/A";
-const product = decodeURIComponent(p.get("product") || "");
-const price   = p.get("price") || "";
-const email   = p.get("email") || "";
-
-document.getElementById("oid").innerText = orderId;
-document.getElementById("pname").innerText = product;
-document.getElementById("price").innerText = price;
-document.getElementById("email").innerText = email;
-
-const btn = document.getElementById("approveBtn");
-const status = document.getElementById("status");
-
-/* -------- LOCK SYSTEM -------- */
-let done = JSON.parse(localStorage.getItem("approved") || "[]");
-if(done.includes(orderId)){
-  btn.disabled = true;
-  btn.innerText = "✅ ALREADY APPROVED";
-  status.innerText = "Email already sent.";
-  status.style.color = "#22c55e";
+// CHECK
+if(!orderId || !product || !price || !email){
+  alert("❌ Invalid access!");
+  document.body.innerHTML="<h2>Invalid Access</h2>";
 }
 
-/* -------- CLICK -------- */
-btn.onclick = async () => {
-  if(!email){
-    alert("Email missing in URL");
-    return;
-  }
+// SET DATA
+document.getElementById("orderId").innerText = orderId;
+document.getElementById("product").innerText = decodeURIComponent(product);
+document.getElementById("price").innerText = price;
+document.getElementById("uid").innerText = uid || "N/A";
+document.getElementById("email").innerText = email;
 
+// APPROVE BUTTON
+document.getElementById("approveBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("approveBtn");
   btn.disabled = true;
-  btn.innerText = "SENDING...";
+  document.getElementById("statusMsg").innerText = "Sending approval email...";
+
+  const templateParams = {
+    order_id: orderId,
+    product: decodeURIComponent(product),
+    price: price,
+    email: email,
+    status: "APPROVED"
+  };
 
   try{
-    await emailjs.send(
-      "service_bepfzoh",
-      "customer_reply",
-      {
-        order_id: orderId,
-        product: product,
-        price: price,
-        status: "APPROVED",
-        to_email: email
-      }
-    );
-
-    done.push(orderId);
-    localStorage.setItem("approved", JSON.stringify(done));
-
-    btn.innerText = "✅ APPROVED";
-    status.innerText = "Customer email sent successfully.";
-    status.style.color = "#22c55e";
-
-  }catch(e){
-    console.error(e);
-    alert("EmailJS error. Check console.");
+    await emailjs.send("service_bepfzoh", "customer_reply", templateParams);
+    document.getElementById("statusMsg").innerText = "✅ Email sent to customer!";
+    btn.disabled = true;
+    document.getElementById("rejectBtn").disabled = true;
+  }catch(err){
+    console.error(err);
+    document.getElementById("statusMsg").innerText = "❌ Error sending email!";
     btn.disabled = false;
-    btn.innerText = "✅ APPROVE & SEND EMAIL";
   }
-};
+});
+
+// REJECT BUTTON
+document.getElementById("rejectBtn").addEventListener("click", () => {
+  document.getElementById("statusMsg").innerText = "❌ Order rejected. Approve disabled.";
+  document.getElementById("approveBtn").disabled = true;
+  document.getElementById("rejectBtn").disabled = true;
+});
 </script>
 
 </body>
