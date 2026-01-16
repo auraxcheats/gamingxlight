@@ -55,12 +55,8 @@ button{
   font-weight:800;
   cursor:pointer;
 }
-button:disabled{
-  opacity:.5;
-}
-.success{
-  display:none;
-}
+button:disabled{opacity:.5;}
+.success{display:none;}
 </style>
 </head>
 
@@ -77,10 +73,16 @@ button:disabled{
     <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
     <input type="text" id="uid" placeholder="Guild UID" required>
 
-    <select id="region">
+    <!-- REGION -->
+    <select id="region" required>
+      <option value="">Select Guild Region</option>
+      <option>🏠 Home</option>
       <option>🇮🇳 India</option>
       <option>🌍 Other</option>
     </select>
+
+    <!-- WHATSAPP -->
+    <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
 
     <input type="text" id="telegram" placeholder="Telegram Username" required>
     <input type="email" id="email" placeholder="Your Email Address" required>
@@ -90,7 +92,7 @@ button:disabled{
 
   <div class="success" id="successBox">
     <h2 style="color:#00ffcc;">✅ ORDER RECEIVED</h2>
-    <p>Please wait 10–30 minutes.<br>We will process your order.</p>
+    <p>Please wait <b>10–30 minutes</b>.<br>We will process your order.</p>
   </div>
 
 </div>
@@ -105,20 +107,21 @@ const price = params.get("price") || "0";
 
 document.getElementById("product").value = product + " - ₹" + price;
 
-document.getElementById("orderForm").addEventListener("submit", async (e)=>{
+orderForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
 
-  const btn = submitBtn;
-  btn.disabled = true;
-  btn.innerText = "PLEASE WAIT...";
+  submitBtn.disabled = true;
+  submitBtn.innerText = "PLEASE WAIT...";
 
   const orderId = "GX-" + Date.now();
 
   const data = {
     order_id: orderId,
-    product: product,
-    price: price,
+    product,
+    price,
     uid: uid.value,
+    region: region.value,
+    whatsapp: whatsapp.value,
     telegram: telegram.value,
     email: email.value
   };
@@ -132,8 +135,10 @@ document.getElementById("orderForm").addEventListener("submit", async (e)=>{
 📦 Product: ${product}
 💰 Price: ₹${price}
 🎮 Guild UID: ${uid.value}
-📩 Email: ${email.value}
-💬 Telegram: ${telegram.value}`;
+🌍 Region: ${region.value}
+📱 WhatsApp: ${whatsapp.value}
+💬 Telegram: ${telegram.value}
+📩 Email: ${email.value}`;
 
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
       method:"POST",
@@ -157,8 +162,8 @@ document.getElementById("orderForm").addEventListener("submit", async (e)=>{
   } catch(err){
     console.error(err);
     alert("❌ Error, try again later");
-    btn.disabled=false;
-    btn.innerText="SUBMIT ORDER";
+    submitBtn.disabled=false;
+    submitBtn.innerText="SUBMIT ORDER";
   }
 });
 </script>
