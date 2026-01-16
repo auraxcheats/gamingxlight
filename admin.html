@@ -4,98 +4,195 @@
 <meta charset="UTF-8">
 <title>Admin Dashboard | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-(function(){ emailjs.init("Jq3n4jPZiiiwdgY7_"); })();
-</script>
+
 <style>
-body {margin:0; font-family:Arial; background:#0b0b0f; color:#fff; text-align:center; padding:20px;}
-.container {max-width:800px; margin:30px auto; background:#141414; border-radius:16px; padding:20px; border:1px solid rgba(255,255,255,.1);}
-.logo {width:100px; margin-bottom:20px;}
-h2 {margin-bottom:15px;}
-table {width:100%; border-collapse:collapse; margin-top:10px;}
-th, td {padding:10px; border:1px solid rgba(255,255,255,.2);}
-th {background:#1c1030;}
-button {padding:8px 12px; margin:2px; border:none; border-radius:8px; cursor:pointer; font-weight:800;}
-.approve {background:#00ffcc; color:#000;}
-.reject {background:#ff3f3f; color:#000;}
-button:disabled {opacity:.5; cursor:not-allowed;}
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #1c1030, #0b0b0f 70%);
+  color: #fff;
+}
+header {
+  text-align:center;
+  padding:20px;
+}
+header img {
+  width: 100px;
+  margin-bottom:10px;
+}
+header h1 {
+  margin:0;
+  font-size:24px;
+  color:#facc15;
+}
+.container {
+  max-width:1200px;
+  margin:0 auto;
+  padding:20px;
+}
+table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+th,td {
+  border:1px solid rgba(255,255,255,.2);
+  padding:10px;
+  text-align:center;
+}
+th {
+  background:#1c1030;
+}
+tr:nth-child(even) {
+  background:rgba(168,85,247,.05);
+}
+.delete-btn {
+  background:#ff4d4d;
+  border:none;
+  padding:6px 10px;
+  color:#000;
+  font-weight:800;
+  border-radius:6px;
+  cursor:pointer;
+}
+.delete-btn:hover {opacity:.8;}
+.export-btn {
+  background:#facc15;
+  border:none;
+  padding:10px 15px;
+  color:#000;
+  font-weight:800;
+  border-radius:6px;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.export-btn:hover {opacity:.9;}
+select {
+  padding:6px;
+  border-radius:6px;
+  background:#0f0f0f;
+  color:#fff;
+  border:none;
+  font-weight:700;
+}
+.empty {
+  text-align:center;
+  color:#888;
+  font-style:italic;
+}
 </style>
 </head>
 <body>
+
+<header>
+  <img src="logo.png" alt="Logo">
+  <h1>GAMING X LIGHT - Admin Dashboard</h1>
+</header>
+
 <div class="container">
-<img src="logo.png" class="logo" alt="Logo">
-<h2>Admin Dashboard - Orders</h2>
-<table id="ordersTable">
-  <thead>
-    <tr>
-      <th>Order ID</th>
-      <th>Product</th>
-      <th>Price</th>
-      <th>Guild UID</th>
-      <th>Telegram</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <button class="export-btn" onclick="exportCSV()">EXPORT CSV</button>
+  <table>
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Product</th>
+        <th>Price</th>
+        <th>UTR</th>
+        <th>Guild UID</th>
+        <th>Region</th>
+        <th>Telegram</th>
+        <th>WhatsApp</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody id="orderTable">
+      <tr><td colspan="11" class="empty">Loading orders...</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <script>
+// PASSWORD PROTECTION
+const password = prompt("Enter admin password:");
+if(password !== "gaming_x_light"){ // Change password here
+  alert("❌ Incorrect password!");
+  document.body.innerHTML="<h2 style='text-align:center;margin-top:50px;'>Access Denied</h2>";
+  throw new Error("Access denied");
+}
+
+// LOAD ORDERS
 function loadOrders(){
-  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
-  const tbody = document.querySelector("#ordersTable tbody");
-  tbody.innerHTML = "";
+  const table = document.getElementById("orderTable");
+  table.innerHTML = "";
+  const orders = JSON.parse(localStorage.getItem("gx_orders")) || [];
+
+  if(orders.length === 0){
+    table.innerHTML = `<tr><td colspan="11" class="empty">No orders found</td></tr>`;
+    return;
+  }
+
   orders.forEach((o,i)=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${o.orderId}</td>
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${o.orderId || "GX-"+Date.now()}</td>
       <td>${o.product}</td>
       <td>₹${o.price}</td>
+      <td>${o.utr}</td>
       <td>${o.uid}</td>
+      <td>${o.region}</td>
       <td>${o.telegram}</td>
-      <td id="status-${i}">${o.status}</td>
+      <td>${o.whatsapp}</td>
+      <td>${o.email}</td>
       <td>
-        <button class="approve" id="approve-${i}">Approve</button>
-        <button class="reject" id="reject-${i}">Reject</button>
+        <select onchange="updateStatus(${i}, this.value)">
+          <option value="Pending" ${o.status==="Pending"?"selected":""}>🟡 Pending</option>
+          <option value="Approved" ${o.status==="Approved"?"selected":""}>🟢 Approved</option>
+          <option value="Rejected" ${o.status==="Rejected"?"selected":""}>🔴 Rejected</option>
+        </select>
+      </td>
+      <td>
+        <button class="delete-btn" onclick="deleteOrder(${i})">Delete</button>
       </td>
     `;
-    tbody.appendChild(tr);
-
-    // Approve
-    document.getElementById(`approve-${i}`).addEventListener("click", async ()=>{
-      if(o.status==="Pending"){
-        o.status="Approved";
-        document.getElementById(`status-${i}`).innerText="Approved";
-        document.getElementById(`approve-${i}`).disabled=true;
-        document.getElementById(`reject-${i}`).disabled=true;
-
-        // Send email to customer
-        try{
-          await emailjs.send("service_9xrns3y","customer_reply",o);
-          alert("✅ Customer email sent!");
-        } catch(e){console.error(e); alert("❌ Email failed!");}
-
-        localStorage.setItem("orders", JSON.stringify(orders));
-      }
-    });
-
-    // Reject
-    document.getElementById(`reject-${i}`).addEventListener("click", ()=>{
-      if(o.status==="Pending"){
-        o.status="Rejected";
-        document.getElementById(`status-${i}`).innerText="Rejected";
-        document.getElementById(`approve-${i}`).disabled=true;
-        document.getElementById(`reject-${i}`).disabled=true;
-        localStorage.setItem("orders", JSON.stringify(orders));
-      }
-    });
-
+    table.appendChild(row);
   });
+}
+
+// DELETE ORDER
+function deleteOrder(index){
+  if(!confirm("Are you sure to delete this order?")) return;
+  let orders = JSON.parse(localStorage.getItem("gx_orders")) || [];
+  orders.splice(index,1);
+  localStorage.setItem("gx_orders", JSON.stringify(orders));
+  loadOrders();
+}
+
+// UPDATE STATUS
+function updateStatus(index, newStatus){
+  let orders = JSON.parse(localStorage.getItem("gx_orders")) || [];
+  orders[index].status = newStatus;
+  localStorage.setItem("gx_orders", JSON.stringify(orders));
+}
+
+// EXPORT CSV
+function exportCSV(){
+  const orders = JSON.parse(localStorage.getItem("gx_orders")) || [];
+  if(orders.length === 0){ alert("No orders to export"); return; }
+  let csv = "Order ID,Product,Price,UTR,Guild UID,Region,Telegram,WhatsApp,Email,Status\n";
+  orders.forEach(o=>{
+    csv += `"${o.orderId || ""}","${o.product}","${o.price}","${o.utr}","${o.uid}","${o.region}","${o.telegram}","${o.whatsapp}","${o.email}","${o.status || "Pending"}"\n`;
+  });
+  const blob = new Blob([csv],{type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "orders.csv";
+  a.click();
 }
 
 loadOrders();
 </script>
+
 </body>
 </html>
