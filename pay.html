@@ -5,58 +5,65 @@
 <title>Payment Details | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-(function(){
-  emailjs.init("lDpUNN_uwsW-vT8_2"); // PUBLIC KEY
-})();
-</script>
-
 <style>
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:#0b0b0f;
+  background:radial-gradient(circle at top,#2a1458,#0b0b0f 65%);
   color:#fff;
   display:flex;
   justify-content:center;
   align-items:center;
   min-height:100vh;
 }
+
 .container{
   width:100%;
-  max-width:420px;
+  max-width:430px;
   background:#141414;
-  padding:25px;
+  padding:28px;
   border-radius:18px;
-  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 0 35px rgba(168,85,247,.6);
+  border:1px solid rgba(255,255,255,.08);
   text-align:center;
-  box-shadow:0 0 25px rgba(168,85,247,.4);
 }
+
 .logo{
   width:120px;
   margin-bottom:15px;
+  filter:drop-shadow(0 0 12px #a855f7);
 }
-h2{margin-bottom:20px;}
+
+h2{
+  margin-bottom:18px;
+}
+
 input,select,button{
   width:100%;
   padding:14px;
   margin-bottom:14px;
-  border-radius:10px;
+  border-radius:12px;
   border:none;
   font-size:14px;
   outline:none;
 }
-input,select{background:#0f0f0f;color:#fff;}
+
+input,select{
+  background:#0f0f0f;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.08);
+}
+
 button{
-  background:#a855f7;
+  background:linear-gradient(135deg,#a855f7,#facc15);
   color:#000;
-  font-weight:800;
+  font-weight:900;
   cursor:pointer;
 }
-button:disabled{opacity:.6;cursor:not-allowed;}
-small{opacity:.6;}
+
+button:hover{opacity:.9}
+
+small{opacity:.65}
 </style>
 </head>
 
@@ -67,12 +74,14 @@ small{opacity:.6;}
   <!-- LOGO -->
   <img src="logo.png" class="logo" alt="Gaming X Light">
 
+  <h2>Submit Payment Details</h2>
+
   <form id="orderForm">
-    <h2>Submit Payment Details</h2>
 
     <input type="text" id="product" readonly>
 
     <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
+
     <input type="text" id="uid" placeholder="Guild UID (Example: 100200300)" required>
 
     <select id="region">
@@ -81,108 +90,82 @@ small{opacity:.6;}
     </select>
 
     <input type="text" id="telegram" placeholder="Telegram Username (@username)" required>
+
     <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
+
     <input type="email" id="email" placeholder="Your Email Address" required>
 
-    <button type="submit" id="submitBtn">SUBMIT ORDER</button>
-    <small>Please wait 10–30 minutes after submission.</small>
+    <button type="submit">SUBMIT ORDER</button>
+
+    <small>
+      ⚠ Order will be verified manually.<br>
+      Email will be sent only after approval.
+    </small>
+
   </form>
-
-  <div id="successBox" style="display:none;">
-    <h2 style="color:#00ffcc;">✅ ORDER RECEIVED!</h2>
-    <p>
-      Payment details received.<br>
-      Please wait <b>10–30 minutes</b>.<br>
-      Admin will verify your payment.
-    </p>
-
-    <a href="index.html"
-       style="display:inline-block;margin-top:20px;padding:14px 22px;
-              background:#a855f7;color:#000;font-weight:800;
-              border-radius:10px;text-decoration:none;">
-      ⬅ BACK TO HOME
-    </a><br><br>
-
-    <a href="https://t.me/Gameralsor"
-       style="color:#a855f7;text-decoration:none;">
-       👉 Telegram Support
-    </a>
-  </div>
 
 </div>
 
 <script>
-// GET PRODUCT & PRICE
+// -------- GET PRODUCT ----------
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product");
 const price = params.get("price");
 
 if(!product || !price){
-  alert("❌ Invalid access!");
-  window.location.href="index.html";
+  alert("Invalid access!");
+  location.href="index.html";
 }
 
 document.getElementById("product").value =
-  decodeURIComponent(product) + " - ₹" + price;
+decodeURIComponent(product) + " - ₹" + price;
 
-// SUBMIT FORM
-document.getElementById("orderForm").addEventListener("submit", async function(e){
-  e.preventDefault();
+// -------- TELEGRAM CONFIG ----------
+const BOT_TOKEN = "8282483005:AAG7BXK-T7EcXWIi_rTcWvNBbCCBTW2syOA";
+const CHAT_ID = "6748687420";
 
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.innerText = "PLEASE WAIT...";
+// -------- SUBMIT ----------
+document.getElementById("orderForm").addEventListener("submit",function(e){
+ e.preventDefault();
 
-  const data = {
-    product: decodeURIComponent(product),
-    price: price,
-    utr: utr.value,
-    uid: uid.value,
-    region: region.value,
-    telegram: telegram.value,
-    whatsapp: whatsapp.value,
-    email: email.value
-  };
+ const orderId = "GX-" + Date.now();
 
-  try{
-    // SAVE TO SUPABASE
-    const res = await fetch(
-      "https://dsrevynaanjmepnufzqi.supabase.co/rest/v1/orders",
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "apikey":"YOUR_SUPABASE_ANON_KEY",
-          "Authorization":"Bearer YOUR_SUPABASE_ANON_KEY"
-        },
-        body:JSON.stringify(data)
-      }
-    );
-    if(!res.ok) throw new Error("Supabase error");
+ const approveLink =
+ `https://yoursite.com/approve.html?`+
+ `order=${orderId}`+
+ `&email=${email.value}`+
+ `&product=${encodeURIComponent(product)}`+
+ `&price=${price}`;
 
-    // EMAIL → ADMIN (1)
-    await emailjs.send(
-      "service_sd0ge44",
-      "template_eclz1lh",
-      data
-    );
+ const msg =
+ `🆕 NEW ORDER\n\n`+
+ `🆔 Order ID: ${orderId}\n`+
+ `📦 ${decodeURIComponent(product)}\n`+
+ `💰 ₹${price}\n\n`+
+ `🔁 UTR: ${utr.value}\n`+
+ `🆔 UID: ${uid.value}\n`+
+ `📍 ${region.value}\n\n`+
+ `📧 ${email.value}\n`+
+ `📞 ${whatsapp.value}\n`+
+ `📲 ${telegram.value}`;
 
-    // EMAIL → CUSTOMER (1)
-    await emailjs.send(
-      "service_sd0ge44",
-      "customer_reply",
-      data
-    );
+ fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+   method:"POST",
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({
+     chat_id:CHAT_ID,
+     text:msg,
+     reply_markup:{
+       inline_keyboard:[
+         [{text:"✅ APPROVE ORDER",url:approveLink}],
+         [{text:"❌ REJECT",callback_data:"reject"}]
+       ]
+     }
+   })
+ });
 
-    orderForm.style.display="none";
-    successBox.style.display="block";
-
-  }catch(err){
-    console.error(err);
-    alert("❌ Error! Try again later.");
-    btn.disabled=false;
-    btn.innerText="SUBMIT ORDER";
-  }
+ alert("✅ Order submitted!\nPlease wait for admin approval.");
+ location.href="index.html";
 });
 </script>
 
