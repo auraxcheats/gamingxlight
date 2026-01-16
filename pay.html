@@ -4,121 +4,81 @@
 <meta charset="UTF-8">
 <title>Payment Details | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- EmailJS (required for admin later) -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
-(function(){ emailjs.init("Jq3n4jPZiiiwdgY7_"); })(); // Public key for EmailJS (used by admin)
+(function(){ emailjs.init("Jq3n4jPZiiiwdgY7_"); })();
 </script>
-
 <style>
 body {
-  margin:0;
-  font-family:Arial;
-  background: radial-gradient(circle at top, #1c1030, #0b0b0f 70%);
-  color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
+  margin:0; font-family:Arial; background:#0b0b0f; color:#fff; display:flex;
+  justify-content:center; align-items:center; min-height:100vh; background: radial-gradient(circle at top, #1c1030, #0b0b0f 65%);
 }
 .container {
-  width:100%;
-  max-width:420px;
-  background:#141414;
-  padding:25px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.1);
-  text-align:center;
-  box-shadow:0 0 30px rgba(168,85,247,0.6);
+  width:100%; max-width:420px; background:#141414; padding:25px; border-radius:16px; border:1px solid rgba(255,255,255,.1);
+  text-align:center; position:relative;
 }
-header img {
-  width:120px;
-  margin-bottom:15px;
-}
-h2 {margin-bottom:20px;}
+.logo { width:100px; margin-bottom:15px; }
+h2 { margin-bottom:10px; }
 input,select,button {
-  width:100%;
-  padding:14px;
-  margin-bottom:14px;
-  border-radius:10px;
-  border:none;
-  font-size:14px;
-  outline:none;
+  width:100%; padding:12px; margin-bottom:12px; border-radius:10px; border:none; font-size:14px; outline:none;
 }
-input,select {background:#0f0f0f;color:#fff;}
-button {
-  background:#a855f7;
-  color:#000;
-  font-weight:800;
-  cursor:pointer;
-}
-button:disabled {opacity:.5;cursor:not-allowed;}
+input,select { background:#0f0f0f; color:#fff; }
+button { background:#a855f7; color:#000; font-weight:800; cursor:pointer; }
+button:disabled {opacity:.5; cursor:not-allowed;}
 small {opacity:.6;}
-#successBox {display:none;}
+.qr-container img { width:220px; margin:10px auto; display:block; border-radius:14px; box-shadow:0 0 20px #a855f7; }
+#successBox {display:none; margin-top:15px;}
+#successBox h2 {color:#00ffcc;}
 </style>
 </head>
-
 <body>
 
 <div class="container">
-  <img src="logo.png" alt="Gaming X Light Logo">
+  <img src="logo.png" class="logo" alt="Logo">
+  <h2 id="productName">Loading...</h2>
+  <p id="priceText"></p>
+  <div class="qr-container">
+    <img src="qr.png" alt="QR Code">
+  </div>
+
   <form id="orderForm">
-    <h2>Submit Payment Details</h2>
-
-    <input type="text" id="product" readonly placeholder="Product Name">
-    <input type="text" id="priceInput" readonly placeholder="Price">
-
     <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
-    <input type="text" id="uid" placeholder="Guild UID (Example: 100200300)" required>
-
+    <input type="text" id="uid" placeholder="Guild UID" required>
     <select id="region">
       <option value="India">🇮🇳 India</option>
       <option value="Other">🌍 Other</option>
     </select>
-
-    <input type="text" id="telegram" placeholder="Telegram Username (@username)" required>
-    <input type="tel" id="whatsapp" placeholder="WhatsApp Number (+91XXXXXXXXXX)" required>
+    <input type="text" id="telegram" placeholder="Telegram Username" required>
+    <input type="tel" id="whatsapp" placeholder="WhatsApp Number" required>
     <input type="email" id="email" placeholder="Your Email Address" required>
-
     <button type="submit" id="submitBtn">SUBMIT ORDER</button>
     <small>Please wait 10–30 minutes after submission.</small>
   </form>
 
   <div id="successBox">
-    <h2 style="color:#00ffcc;">✅ ORDER PLACED!</h2>
-    <p>Your payment & Guild UID details are recorded.<br>Admin will approve your order soon.</p>
-    <a href="index.html" style="display:inline-block;margin-top:20px;padding:14px 22px;background:#a855f7;color:#000;font-weight:800;border-radius:10px;text-decoration:none;">
-      ⬅ BACK TO HOME
-    </a><br><br>
-    <a href="https://t.me/Gameralsor" style="color:#a855f7;text-decoration:none;">👉 Telegram Support</a>
+    <h2>✅ ORDER RECEIVED!</h2>
+    <p>Order saved. Admin will approve before sending confirmation email.</p>
+    <a href="index.html" style="color:#a855f7;">⬅ BACK TO HOME</a>
   </div>
 </div>
 
 <script>
-// Get URL parameters
+// Get product & price from URL
 const params = new URLSearchParams(window.location.search);
-const product = params.get("product");
-const price = params.get("price");
+const product = params.get("product") || "Unknown Product";
+const price = params.get("price") || "0";
 
-// Block direct access
-if(!product || !price){
-  alert("❌ Invalid access!");
-  window.location.href = "index.html";
-}
+document.getElementById("productName").innerText = product;
+document.getElementById("priceText").innerText = "₹" + price;
 
-document.getElementById("product").value = decodeURIComponent(product);
-document.getElementById("priceInput").value = "₹" + price;
-
-// Handle form submission
 document.getElementById("orderForm").addEventListener("submit", function(e){
   e.preventDefault();
   const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.innerText = "PLEASE WAIT...";
+  btn.disabled = true; btn.innerText="PLEASE WAIT...";
 
-  const data = {
-    product: decodeURIComponent(product),
+  const orderData = {
+    orderId: "GX-" + Date.now(),
+    product: product,
     price: price,
     utr: document.getElementById("utr").value,
     uid: document.getElementById("uid").value,
@@ -126,16 +86,15 @@ document.getElementById("orderForm").addEventListener("submit", function(e){
     telegram: document.getElementById("telegram").value,
     whatsapp: document.getElementById("whatsapp").value,
     email: document.getElementById("email").value,
-    status: "Pending",
-    order_id: `GX-${Date.now().toString().slice(-6)}`
+    status: "Pending"
   };
 
-  // Save order in localStorage
+  // Save to localStorage
   let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-  orders.push(data);
+  orders.push(orderData);
   localStorage.setItem("orders", JSON.stringify(orders));
 
-  // Show success message
+  // Show success
   document.getElementById("orderForm").style.display = "none";
   document.getElementById("successBox").style.display = "block";
 });
