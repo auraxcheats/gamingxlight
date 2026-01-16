@@ -4,66 +4,90 @@
 <meta charset="UTF-8">
 <title>Payment Details | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
-(function(){ emailjs.init("Jq3n4jPZiiiwdgY7_"); })();
+(function(){
+  emailjs.init("Jq3n4jPZiiiwdgY7_"); // PUBLIC KEY
+})();
 </script>
+
 <style>
-body {
-  margin:0; font-family:Arial; background:#0b0b0f; color:#fff; display:flex;
-  justify-content:center; align-items:center; min-height:100vh; background: radial-gradient(circle at top, #1c1030, #0b0b0f 65%);
+body{
+  margin:0;
+  font-family:Arial;
+  background:radial-gradient(circle at top,#1c1030,#0b0b0f 65%);
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
-.container {
-  width:100%; max-width:420px; background:#141414; padding:25px; border-radius:16px; border:1px solid rgba(255,255,255,.1);
-  text-align:center; position:relative;
+.container{
+  width:100%;
+  max-width:420px;
+  background:#141414;
+  padding:24px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.1);
+  text-align:center;
 }
-.logo { width:100px; margin-bottom:15px; }
-h2 { margin-bottom:10px; }
-input,select,button {
-  width:100%; padding:12px; margin-bottom:12px; border-radius:10px; border:none; font-size:14px; outline:none;
+.logo{width:90px;margin-bottom:10px}
+h2{margin:10px 0}
+input,select,button{
+  width:100%;
+  padding:13px;
+  margin-bottom:12px;
+  border-radius:10px;
+  border:none;
+  font-size:14px;
 }
-input,select { background:#0f0f0f; color:#fff; }
-button { background:#a855f7; color:#000; font-weight:800; cursor:pointer; }
-button:disabled {opacity:.5; cursor:not-allowed;}
-small {opacity:.6;}
-.qr-container img { width:220px; margin:10px auto; display:block; border-radius:14px; box-shadow:0 0 20px #a855f7; }
-#successBox {display:none; margin-top:15px;}
-#successBox h2 {color:#00ffcc;}
+input,select{background:#0f0f0f;color:#fff}
+button{
+  background:#a855f7;
+  color:#000;
+  font-weight:800;
+  cursor:pointer;
+}
+button:disabled{opacity:.6}
+small{opacity:.6}
+#success{display:none}
 </style>
 </head>
+
 <body>
 
 <div class="container">
-  <img src="logo.png" class="logo" alt="Logo">
-  <h2 id="productName">Loading...</h2>
+  <img src="logo.png" class="logo">
+  <h2 id="productName"></h2>
   <p id="priceText"></p>
-  <div class="qr-container">
-    <img src="qr.png" alt="QR Code">
-  </div>
 
   <form id="orderForm">
-    <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
+    <input type="text" id="utr" placeholder="Payment UTR" required>
     <input type="text" id="uid" placeholder="Guild UID" required>
+
     <select id="region">
-      <option value="India">🇮🇳 India</option>
-      <option value="Other">🌍 Other</option>
+      <option>🇮🇳 India</option>
+      <option>🌍 Other</option>
     </select>
+
     <input type="text" id="telegram" placeholder="Telegram Username" required>
     <input type="tel" id="whatsapp" placeholder="WhatsApp Number" required>
-    <input type="email" id="email" placeholder="Your Email Address" required>
-    <button type="submit" id="submitBtn">SUBMIT ORDER</button>
-    <small>Please wait 10–30 minutes after submission.</small>
+    <input type="email" id="email" placeholder="Your Email" required>
+
+    <button id="submitBtn">SUBMIT ORDER</button>
+    <small>Email confirmation will be sent</small>
   </form>
 
-  <div id="successBox">
-    <h2>✅ ORDER RECEIVED!</h2>
-    <p>Order saved. Admin will approve before sending confirmation email.</p>
-    <a href="index.html" style="color:#a855f7;">⬅ BACK TO HOME</a>
+  <div id="success">
+    <h2 style="color:#00ffcc">✅ ORDER RECEIVED</h2>
+    <p>Confirmation email sent.<br>Admin has received your order.</p>
+    <a href="index.html" style="color:#a855f7">⬅ Back to Home</a>
   </div>
 </div>
 
 <script>
-// Get product & price from URL
 const params = new URLSearchParams(window.location.search);
 const product = params.get("product") || "Unknown Product";
 const price = params.get("price") || "0";
@@ -71,32 +95,67 @@ const price = params.get("price") || "0";
 document.getElementById("productName").innerText = product;
 document.getElementById("priceText").innerText = "₹" + price;
 
-document.getElementById("orderForm").addEventListener("submit", function(e){
+const BOT_TOKEN = "8282483005:AAG7BXK-T7EcXWIi_rTcWvNBbCCBTW2syOA";
+const CHAT_ID = "6985037539";
+
+document.getElementById("orderForm").addEventListener("submit", async (e)=>{
   e.preventDefault();
   const btn = document.getElementById("submitBtn");
-  btn.disabled = true; btn.innerText="PLEASE WAIT...";
+  btn.disabled = true;
+  btn.innerText = "PLEASE WAIT...";
 
-  const orderData = {
+  const order = {
     orderId: "GX-" + Date.now(),
-    product: product,
-    price: price,
-    utr: document.getElementById("utr").value,
-    uid: document.getElementById("uid").value,
-    region: document.getElementById("region").value,
-    telegram: document.getElementById("telegram").value,
-    whatsapp: document.getElementById("whatsapp").value,
-    email: document.getElementById("email").value,
-    status: "Pending"
+    product, price,
+    utr: utr.value,
+    uid: uid.value,
+    region: region.value,
+    telegram: telegram.value,
+    whatsapp: whatsapp.value,
+    email: email.value,
+    time: new Date().toLocaleString()
   };
 
-  // Save to localStorage
+  // Save order locally for admin dashboard
   let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-  orders.push(orderData);
+  orders.push(order);
   localStorage.setItem("orders", JSON.stringify(orders));
 
-  // Show success
-  document.getElementById("orderForm").style.display = "none";
-  document.getElementById("successBox").style.display = "block";
+  try{
+    // CUSTOMER EMAIL ONLY
+    await emailjs.send(
+      "service_9xrns3y",
+      "customer_reply",
+      order
+    );
+
+    // TELEGRAM ADMIN MESSAGE
+    const text =
+`🧾 NEW ORDER RECEIVED
+Order ID: ${order.orderId}
+Product: ${order.product}
+Price: ₹${order.price}
+UTR: ${order.utr}
+UID: ${order.uid}
+Telegram: ${order.telegram}
+WhatsApp: ${order.whatsapp}
+Email: ${order.email}`;
+
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({chat_id:CHAT_ID,text})
+    });
+
+    orderForm.style.display="none";
+    success.style.display="block";
+
+  }catch(err){
+    alert("❌ Error! Try again later");
+    btn.disabled=false;
+    btn.innerText="SUBMIT ORDER";
+    console.error(err);
+  }
 });
 </script>
 
