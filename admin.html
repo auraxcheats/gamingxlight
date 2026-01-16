@@ -1,33 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Panel</title>
+<title>Admin Dashboard | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+(function(){ emailjs.init("Jq3n4jPZiiiwdgY7_"); })(); // public key
+</script>
+
 <style>
-body{background:#0b0b0f;color:#fff;font-family:Arial}
-.box{background:#141414;margin:15px;padding:15px;border-radius:10px}
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #1c1030, #0b0b0f 70%);
+  color: #fff;
+}
+header {
+  background: #141414;
+  padding: 20px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #facc15;
+}
+header img {
+  width: 120px;
+  display: block;
+  margin: 0 auto 10px;
+}
+.container {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #1c1030;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(168,85,247,0.6);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  text-align: left;
+}
+th {
+  background: #0f0f0f;
+}
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+}
+button.approve { background: #00ffcc; color: #000; }
+button.reject { background: #f87171; color: #000; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
 </head>
 <body>
 
-<h2>ADMIN ORDERS</h2>
+<header>
+  <img src="logo.png" alt="Gaming X Light Logo">
+  GAMING X LIGHT | Admin Dashboard
+</header>
+
+<div class="container">
+  <table id="ordersTable">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Guild UID</th>
+        <th>Telegram</th>
+        <th>WhatsApp</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Orders will load here -->
+    </tbody>
+  </table>
+</div>
 
 <script>
-const pass=prompt("Admin Password");
-if(pass!=="gaming_x_light") location.href="index.html";
+// Load orders from localStorage
+function loadOrders() {
+  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  const tbody = document.querySelector("#ordersTable tbody");
+  tbody.innerHTML = "";
 
-const orders=JSON.parse(localStorage.getItem("orders")||"[]");
-orders.reverse().forEach(o=>{
-document.body.innerHTML+=`
-<div class="box">
-<b>${o.product}</b><br>
-UTR: ${o.utr}<br>
-UID: ${o.uid}<br>
-Email: ${o.email}<br>
-Time: ${o.time}
-</div>`;
-});
+  orders.forEach((order, index)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>GX-${Date.now().toString().slice(-6)}</td>
+      <td>${order.product}</td>
+      <td>₹${order.price}</td>
+      <td>${order.uid || "-"}</td>
+      <td>${order.telegram}</td>
+      <td>${order.whatsapp}</td>
+      <td>${order.email}</td>
+      <td>${order.status || "Pending"}</td>
+      <td>
+        <button class="approve" ${order.status==="Approved"?"disabled":""} data-index="${index}">Approve</button>
+        <button class="reject" ${order.status==="Rejected"?"disabled":""} data-index="${index}">Reject</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Approve click
+  document.querySelectorAll("button.approve").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const idx = btn.dataset.index;
+      btn.disabled = true;
+      orders[idx].status = "Approved";
+      localStorage.setItem("orders", JSON.stringify(orders));
+
+      // Send email to customer
+      try {
+        await emailjs.send("service_sd0ge44","customer_reply",{
+          product: orders[idx].product,
+          price: orders[idx].price,
+          email: orders[idx].email,
+          guild_id: orders[idx].uid,
+          status: "Approved",
+          order_id: `GX-${Date.now().toString().slice(-6)}`
+        });
+        alert("✅ Customer notified by email!");
+      } catch(err){
+        console.error(err);
+        alert("❌ Email failed. Check EmailJS.");
+        btn.disabled = false;
+        orders[idx].status = "Pending";
+        localStorage.setItem("orders", JSON.stringify(orders));
+      }
+
+      loadOrders();
+    });
+  });
+
+  // Reject click
+  document.querySelectorAll("button.reject").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const idx = btn.dataset.index;
+      btn.disabled = true;
+      orders[idx].status = "Rejected";
+      localStorage.setItem("orders", JSON.stringify(orders));
+      loadOrders();
+    });
+  });
+}
+
+// Initial load
+loadOrders();
 </script>
 
 </body>
