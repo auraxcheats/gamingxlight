@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Order Payment | GAMING X LIGHT</title>
+<title>Payment Details | GAMING X LIGHT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
 (function(){
@@ -16,155 +15,148 @@
 <style>
 body{
   margin:0;
-  min-height:100vh;
-  background:radial-gradient(circle at top,#140b2e,#05050a 70%);
-  font-family:Segoe UI,Arial;
+  background:#0b0b0f;
+  font-family:Arial;
   color:#fff;
   display:flex;
   justify-content:center;
   align-items:center;
-  padding:20px;
+  min-height:100vh;
 }
-
-.card{
+.container{
   width:100%;
   max-width:420px;
-  background:linear-gradient(180deg,#0f0f1f,#080812);
-  border-radius:18px;
+  background:#141414;
   padding:25px;
-  border:1px solid rgba(168,85,247,.35);
-  box-shadow:0 0 35px rgba(168,85,247,.2);
-  animation:fade .6s ease;
+  border-radius:18px;
+  box-shadow:0 0 30px rgba(168,85,247,.5);
+  text-align:center;
 }
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1}
-}
-
 .logo{
-  width:80px;
-  display:block;
-  margin:0 auto 10px;
-  filter:drop-shadow(0 0 14px #a855f7);
+  width:90px;
+  margin-bottom:10px;
 }
-
-h2{text-align:center;margin:10px 0 20px}
-
-input,button{
+h2{margin-bottom:20px;}
+input,select,button{
   width:100%;
   padding:14px;
-  margin-bottom:12px;
+  margin-bottom:14px;
   border-radius:10px;
   border:none;
   font-size:14px;
-  outline:none;
 }
-
-input{
-  background:#0b0b16;
+input,select{
+  background:#0f0f0f;
   color:#fff;
 }
-
 button{
-  background:linear-gradient(135deg,#a855f7,#facc15);
+  background:#a855f7;
+  color:#000;
   font-weight:800;
   cursor:pointer;
 }
-
 button:disabled{
-  opacity:.6;
-  cursor:not-allowed;
+  opacity:.5;
 }
-
 .success{
-  text-align:center;
   display:none;
 }
-.success h3{color:#00ffcc}
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="container">
 
   <img src="logo.png" class="logo">
+  <h2>Submit Payment Details</h2>
 
   <form id="orderForm">
-    <h2>Submit Payment Details</h2>
+    <input type="text" id="product" readonly>
 
-    <input id="product" readonly>
-    <input id="utr" placeholder="Payment UTR / Txn ID" required>
-    <input id="uid" placeholder="Guild UID" required>
-    <input id="telegram" placeholder="Telegram Username" required>
-    <input id="email" type="email" placeholder="Your Email" required>
+    <input type="text" id="utr" placeholder="Payment UTR / Transaction ID" required>
+    <input type="text" id="uid" placeholder="Guild UID" required>
 
-    <button id="submitBtn">SUBMIT ORDER</button>
+    <select id="region">
+      <option>🇮🇳 India</option>
+      <option>🌍 Other</option>
+    </select>
+
+    <input type="text" id="telegram" placeholder="Telegram Username" required>
+    <input type="email" id="email" placeholder="Your Email Address" required>
+
+    <button type="submit" id="submitBtn">SUBMIT ORDER</button>
   </form>
 
   <div class="success" id="successBox">
-    <h3>✅ Order Received</h3>
-    <p>Your order has been saved.<br>
-    Confirmation email sent.</p>
+    <h2 style="color:#00ffcc;">✅ ORDER RECEIVED</h2>
+    <p>Please wait 10–30 minutes.<br>We will process your order.</p>
   </div>
 
 </div>
 
 <script>
-// Read product data
+const BOT_TOKEN = "8282483005:AAG7BXK-T7EcXWIi_rTcWvNBbCCBTW2syOA";
+const CHAT_ID = "6985037539";
+
 const params = new URLSearchParams(window.location.search);
-const product = params.get("product") || "GAMING X LIGHT PRODUCT";
+const product = decodeURIComponent(params.get("product") || "GAMING X LIGHT");
 const price = params.get("price") || "0";
 
-document.getElementById("product").value =
-  decodeURIComponent(product) + " - ₹" + price;
+document.getElementById("product").value = product + " - ₹" + price;
 
 document.getElementById("orderForm").addEventListener("submit", async (e)=>{
   e.preventDefault();
 
-  const btn = document.getElementById("submitBtn");
+  const btn = submitBtn;
   btn.disabled = true;
   btn.innerText = "PLEASE WAIT...";
 
   const orderId = "GX-" + Date.now();
 
-  const orderData = {
-    orderId: orderId,
-    product: decodeURIComponent(product),
+  const data = {
+    order_id: orderId,
+    product: product,
     price: price,
-    utr: utr.value,
     uid: uid.value,
     telegram: telegram.value,
     email: email.value
   };
 
-  try{
-    /* 1️⃣ SAVE ORDER LOCALLY (ADMIN DASHBOARD) */
-    const orders = JSON.parse(localStorage.getItem("orders") || "[]");
-    orders.push(orderData);
-    localStorage.setItem("orders", JSON.stringify(orders));
+  try {
+    // TELEGRAM MESSAGE
+    const tgMsg =
+`🧾 NEW ORDER RECEIVED
 
-    /* 2️⃣ SEND CUSTOMER EMAIL */
+🆔 Order ID: ${orderId}
+📦 Product: ${product}
+💰 Price: ₹${price}
+🎮 Guild UID: ${uid.value}
+📩 Email: ${email.value}
+💬 Telegram: ${telegram.value}`;
+
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+      method:"POST",
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        chat_id:CHAT_ID,
+        text:tgMsg
+      })
+    });
+
+    // CUSTOMER EMAIL
     await emailjs.send(
       "service_9xrns3y",
       "customer_reply",
-      {
-        order_id: orderId,
-        product: orderData.product,
-        price: orderData.price,
-        uid: orderData.uid,
-        email: orderData.email
-      }
+      data
     );
 
-    /* SUCCESS */
-    document.getElementById("orderForm").style.display="none";
-    document.getElementById("successBox").style.display="block";
+    orderForm.style.display="none";
+    successBox.style.display="block";
 
-  }catch(err){
-    console.error("ORDER ERROR:", err);
-    alert("Order not submitted. Try again.");
+  } catch(err){
+    console.error(err);
+    alert("❌ Error, try again later");
     btn.disabled=false;
     btn.innerText="SUBMIT ORDER";
   }
